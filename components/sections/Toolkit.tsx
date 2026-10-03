@@ -7,6 +7,7 @@ import { hues, site, type Hue } from "@/data/site";
 import { reveal } from "@/lib/anim";
 import { getLenis, scrollToTarget } from "@/lib/lenis";
 import { Heading, SectionLabel } from "../ui";
+import { FinancialDistrict } from "../BayArt";
 
 /** Small glyph per ITGC domain. */
 function DomainGlyph({ id, color }: { id: string; color: string }) {
@@ -309,6 +310,8 @@ export default function Toolkit() {
           })}
         </ul>
       </div>
+
+      <FinancialDistrict className="mt-20 block w-full" />
 
       {/* how a control gets tested: steps beside a workpaper that fills in */}
       <div ref={walk} className={`wrap grid gap-8 md:grid-cols-12 md:gap-6 ${pinned ? "h-[100svh] content-center" : "py-[14vh]"}`}>

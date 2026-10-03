@@ -1,4 +1,4 @@
-// Camping trips for the Trail Map and Gallery.
+// Camping trips for the "Beyond work" photo strip.
 // Trips are drawn in chronological order of `date` (YYYY-MM) once every trip has one.
 
 export type Trip = {
@@ -19,13 +19,6 @@ export type Trip = {
 };
 
 export type Biome = "coast" | "forest" | "desert" | "alpine" | "lake" | "volcanic";
-
-export const campingConfig: {
-  /** Optional total trail miles. Leave undefined to render "—". */
-  miles?: number;
-} = {
-  miles: undefined, // TODO: add if you track it
-};
 
 /**
  * Real trips. Blurbs describe the places themselves; swap in your own words any time.

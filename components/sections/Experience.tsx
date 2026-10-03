@@ -51,7 +51,6 @@ export default function Experience() {
     () => {
       const scope = root.current!;
       if (mode === "stacked") {
-        scrollStore.experience = 1;
         reveal(".ledger-row", ".ledger");
         return;
       }
@@ -64,7 +63,6 @@ export default function Experience() {
         scrub: 0.4,
         refreshPriority: 3,
         onUpdate: (self) => {
-          scrollStore.experience = self.progress;
           if (rail.current) rail.current.style.transform = `scaleY(${self.progress})`;
           setCurrent(Math.min(N - 1, Math.floor(self.progress * (N - 1) + 0.5)));
         },

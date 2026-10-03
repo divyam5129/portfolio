@@ -1,5 +1,7 @@
 # Decisions
 
+> **Note:** this is a running history. The 3D landscape, loader, Trail Map and camping elements described below were later removed (they remain on the `camping-version` branch). The current site is described in `HANDOFF.md`.
+
 Choices made where the spec was unspecified or where following it literally conflicted with another requirement. Default rule applied: fastest, most legible, most cinematic.
 
 ## Stack

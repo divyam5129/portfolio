@@ -6,8 +6,8 @@ import { useGSAP } from "@gsap/react";
 import { hairlines, reveal } from "@/lib/anim";
 import { display, hues, site, type Hue } from "@/data/site";
 import { chapters } from "@/data/experience";
-import Landscape from "../Landscape";
 import { Crosshairs, SectionLabel } from "../ui";
+import { SanJoseSkyline } from "../BayArt";
 
 /** Split the statement so highlighted phrases can carry their own colour. */
 function renderStatement(text: string, highlights: { text: string; hue: Hue }[]) {
@@ -63,7 +63,7 @@ export default function About() {
   const { about } = site;
 
   return (
-    <section id="about" ref={root} aria-labelledby="about-title" className="relative min-h-[100svh] py-[16vh]">
+    <section id="about" ref={root} aria-labelledby="about-title" className="relative min-h-[100svh] pt-[16vh]">
       <div className="wrap grid gap-16 md:grid-cols-12 md:gap-6">
         <div className="md:col-span-7">
           <SectionLabel id="about" />
@@ -84,9 +84,12 @@ export default function About() {
                   <Image src={about.portrait} alt={about.portraitAlt} fill sizes="(max-width: 768px) 90vw, 30vw" className="object-cover" />
                 ) : (
                   <>
-                    <Landscape seed="portrait-divyam" biome="alpine" />
+                    <div
+                      className="absolute inset-0"
+                      style={{ background: "radial-gradient(80% 60% at 30% 20%, color-mix(in oklab, var(--accent) 45%, transparent), transparent 70%), linear-gradient(160deg, #1b2445, #0b0e1c)" }}
+                    />
                     <div className="absolute inset-0 grid place-items-center">
-                      <span className="text-[clamp(4rem,9vw,7rem)] font-semibold tracking-[-0.06em] text-white/90 mix-blend-overlay">DG</span>
+                      <span className="text-[clamp(4rem,9vw,7rem)] font-semibold tracking-[-0.06em] text-white/85">DG</span>
                     </div>
                   </>
                 )}
@@ -126,6 +129,7 @@ export default function About() {
           ))}
         </ul>
       </div>
+      <SanJoseSkyline className="mt-20 block w-full" />
     </section>
   );
 }

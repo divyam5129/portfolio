@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import Hud from "@/components/Hud";
-import SceneRoot from "@/components/Scene/SceneRoot";
+import Backdrop from "@/components/Backdrop";
 import { site } from "@/data/site";
 
 // Self-hosted (from @fontsource) so builds never depend on Google Fonts being reachable.
@@ -50,7 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main" className="sr-only-focusable mono fixed left-4 top-4 z-[110] bg-[var(--bg)] px-3 py-2">
           Skip to content
         </a>
-        <SceneRoot />
+        <Backdrop />
         <SmoothScroll />
         <Hud />
         {children}

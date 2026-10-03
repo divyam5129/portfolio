@@ -27,24 +27,3 @@ export function useFinePointer() {
   }, []);
   return fine;
 }
-
-/** Decide whether the device should get the WebGL scene or the 2D fallback. */
-export function shouldUse3D(): boolean {
-  if (typeof window === "undefined") return false;
-  // Manual override for testing: ?scene=3d or ?scene=2d
-  const forced = new URLSearchParams(window.location.search).get("scene");
-  if (forced === "2d") return false;
-  const force3D = forced === "3d";
-  // Phones get the 2D landscape: far less to download and kinder to battery.
-  if (window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`).matches && !force3D) return false;
-  const cores = navigator.hardwareConcurrency ?? 4;
-  if (cores < 4 && !force3D) return false;
-  try {
-    const canvas = document.createElement("canvas");
-    const gl = (canvas.getContext("webgl2") || canvas.getContext("webgl")) as WebGLRenderingContext | null;
-    if (!gl) return false;
-    return true;
-  } catch {
-    return false;
-  }
-}

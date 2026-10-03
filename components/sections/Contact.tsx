@@ -6,6 +6,7 @@ import { reveal } from "@/lib/anim";
 import { scrollToTarget } from "@/lib/lenis";
 import { display, isTodo, site } from "@/data/site";
 import { Arrow, SectionLabel } from "../ui";
+import { BayBridge } from "../BayArt";
 
 const LINK_COLORS = ["#ff8a5b", "#38bdf8", "#a78bfa", "#5eead4"];
 
@@ -87,7 +88,9 @@ export default function Contact() {
         </ul>
       </div>
 
-      <footer className="wrap legible mb-20 mt-24 flex items-center justify-between border-t border-white/15 py-6 md:mb-24">
+      <BayBridge className="mt-16 block w-full" />
+
+      <footer className="wrap legible mb-20 mt-6 flex items-center justify-between border-t border-white/15 py-6 md:mb-24">
         <p className="mono dim">{`// © ${site.year} ${site.name}`}</p>
         <button
           type="button"

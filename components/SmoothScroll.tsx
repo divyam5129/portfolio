@@ -12,7 +12,7 @@ export { sectionStops };
 
 /**
  * Global scroll wiring: Lenis, section tracking, the eased progress value,
- * and the time-of-day palette (written to the store for the 3D scene and to
+ * and the time-of-day palette (written to the store for the HUD clock and to
  * CSS variables for the page).
  */
 export default function SmoothScroll() {
@@ -71,15 +71,6 @@ export default function SmoothScroll() {
     };
     gsap.ticker.add(tick);
 
-    const onPointer = (e: PointerEvent) => {
-      scrollStore.pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
-      scrollStore.pointer.y = (e.clientY / window.innerHeight) * 2 - 1;
-    };
-    const onVisibility = () => {
-      scrollStore.visible = document.visibilityState === "visible";
-    };
-    window.addEventListener("pointermove", onPointer, { passive: true });
-    document.addEventListener("visibilitychange", onVisibility);
 
     // Fonts change line breaks (and therefore pin lengths).
     document.fonts?.ready.then(() => ScrollTrigger.refresh());
@@ -88,8 +79,6 @@ export default function SmoothScroll() {
       window.clearTimeout(t);
       gsap.ticker.remove(tick);
       ScrollTrigger.removeEventListener("refresh", onRefresh);
-      window.removeEventListener("pointermove", onPointer);
-      document.removeEventListener("visibilitychange", onVisibility);
       cleanupLenis();
     };
   }, []);

@@ -4,4 +4,3 @@ out
 .env*
 *.tsbuildinfo
 next-env.d.ts
-.cache

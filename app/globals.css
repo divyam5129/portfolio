@@ -170,6 +170,13 @@ html.lenis, html.lenis body { height: auto; }
 .arrow-link:focus-visible .arrow > span + span { transform: translate(0, 0); color: inherit; }
 
 /* Vignette over the scene */
+/* fine film grain over the backdrop */
+.grain {
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
 .vignette {
   position: fixed;
   inset: 0;

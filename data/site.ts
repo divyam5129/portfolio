@@ -157,14 +157,13 @@ export const site = {
     { id: "now", label: "Now" },
     { id: "experience", label: "Experience" },
     { id: "toolkit", label: "IT Controls" },
-    { id: "trail-map", label: "Trail Map" },
-    { id: "gallery", label: "Gallery" },
+    { id: "gallery", label: "Beyond Work" },
     { id: "skills", label: "Skills" },
     { id: "contact", label: "Contact" },
   ],
 };
 
-/** Index of a section in scroll order (drives camera poses and time of day). */
+/** Index of a section in scroll order (drives the time of day). */
 export function sectionIndex(id: string): number {
   return site.sections.findIndex((s) => s.id === id);
 }
