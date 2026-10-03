@@ -51,8 +51,22 @@ export default function TrailMap() {
   const lastPin = useRef<HTMLElement | null>(null);
 
   /* ---------- data + size ---------- */
+  // The atlas is ~115 kB: keep it out of the initial load and fetch it once the browser is idle.
+  // (Not on scroll: the pin is built when it arrives, so it must land well before the user gets here.)
   useEffect(() => {
-    import("us-atlas/states-10m.json").then((m) => setTopo((m.default ?? m) as unknown as Topology));
+    let cancelled = false;
+    const load = () =>
+      import("us-atlas/states-10m.json").then((m) => {
+        if (!cancelled) setTopo((m.default ?? m) as unknown as Topology);
+      });
+    const idle = window.requestIdleCallback
+      ? window.requestIdleCallback(load, { timeout: 2500 })
+      : window.setTimeout(load, 1200);
+    return () => {
+      cancelled = true;
+      if (window.cancelIdleCallback) window.cancelIdleCallback(idle);
+      else window.clearTimeout(idle);
+    };
   }, []);
 
   useEffect(() => {

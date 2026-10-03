@@ -10,7 +10,7 @@ A scroll-driven, cinematic personal portfolio for **Divyam Gupta** (economics se
 
 **Core idea: "The Trail."** The site is a single walk across a low-poly mountain landscape. **As you scroll, the time of day moves from dawn to night**, and both the 3D sky and the page's accent colours follow it. The site opens on a self-drawing **Golden Gate Bridge** line drawing and ends at night by a glowing tent and campfire.
 
-**Stack:** Next.js 15 (App Router) + TypeScript 5.9 · Tailwind CSS v4 · GSAP 3.15 + ScrollTrigger, DrawSVG, SplitText, Flip (all free) · Lenis smooth scroll · three.js + @react-three/fiber 9 + drei + @react-three/postprocessing (bloom) · d3-geo, d3-shape, topojson, us-atlas (the map). Fonts are self-hosted from npm (Inter Tight + JetBrains Mono) via `next/font/local`. It deploys to Vercel with no configuration.
+**Stack:** Next.js 15 (App Router) + TypeScript 5.9 · Tailwind CSS v4 · GSAP 3.15 + ScrollTrigger, DrawSVG, SplitText, Flip (all free) · Lenis smooth scroll · three.js + @react-three/fiber 9 + postprocessing (bloom/noise/vignette, wired up directly in `Scene/Effects.tsx`; don't add drei or @react-three/postprocessing back, they add ~70 kB gzipped) · d3-geo, d3-shape, topojson, us-atlas (the map). Fonts are self-hosted from npm (Inter Tight + JetBrains Mono) via `next/font/local`. It deploys to Vercel with no configuration.
 
 **Status:** `npm run build` passes with no TypeScript or ESLint errors. It's been tested at 1440px, 1280px and 375px, and with reduced motion. All interactions work by keyboard.
 
@@ -56,7 +56,8 @@ components/
     world.ts          terrain height function, lake, tent, fire, trail curve, tree placement, CAMERA POSES
     atmosphere.ts     per-frame lighting state from the palette (linear colours) + shared GLSL noise
     CameraRig.tsx     camera path through the poses, trail ride during Experience, fog, the 2 lights
-    SceneCanvas.tsx   <Canvas> composition + bloom/noise/vignette (desktop only)
+    SceneCanvas.tsx   <Canvas> composition
+    Effects.tsx       bloom/noise/vignette composer (desktop only)
     SceneRoot.tsx     picks 3D vs 2D fallback; fixed layer behind the page
     Sky.tsx           sky dome: gradient, sun, clouds, moon, stars, aurora
     Terrain.tsx       shaded terrain (height/slope colours + contour lines + firelight)

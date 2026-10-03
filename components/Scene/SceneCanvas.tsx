@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import { useProgress } from "@react-three/drei";
-import { EffectComposer, Bloom, Vignette, Noise } from "@react-three/postprocessing";
 import * as THREE from "three";
 import Terrain from "./Terrain";
 import Water from "./Water";
@@ -13,16 +11,13 @@ import { Campfire, Tent, Trail } from "./Tent";
 import Wireframe from "./Wireframe";
 import Particles from "./Particles";
 import CameraRig from "./CameraRig";
+import Effects from "./Effects";
 import { scrollStore } from "@/lib/gsap";
 import { setLoad } from "@/lib/loadStore";
 
-/** Reports drei progress + first rendered frame to the loader. */
+/** Reports the first rendered frame to the loader (the scene is procedural: no assets to wait on). */
 function LoadReporter() {
-  const { progress, total } = useProgress();
   const gl = useThree((s) => s.gl);
-  useEffect(() => {
-    setLoad({ assets: total === 0 ? 100 : progress });
-  }, [progress, total]);
   useEffect(() => {
     let raf = requestAnimationFrame(() => {
       raf = requestAnimationFrame(() => setLoad({ sceneFrame: true }));
@@ -94,13 +89,7 @@ export default function SceneCanvas({ mobile }: { mobile: boolean }) {
       <Particles count={mobile ? 300 : 700} />
       <LoadReporter />
       {reduced && <DemandDriver />}
-      {effects && (
-        <EffectComposer multisampling={4}>
-          <Bloom mipmapBlur intensity={0.85} luminanceThreshold={0.82} luminanceSmoothing={0.18} radius={0.75} />
-          <Noise opacity={0.035} />
-          <Vignette offset={0.32} darkness={0.55} />
-        </EffectComposer>
-      )}
+      {effects && <Effects />}
     </Canvas>
   );
 }

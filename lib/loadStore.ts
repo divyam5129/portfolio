@@ -1,15 +1,15 @@
 "use client";
 
 /**
- * Tiny load-progress store. The 3D scene reports drei's useProgress and its
- * first rendered frame here; fonts report when ready. The loader reads it.
+ * Tiny load-progress store. The 3D scene reports its first rendered frame
+ * here; fonts report when ready. The loader reads it.
  */
 type Listener = () => void;
 
 export const loadState = {
   fonts: false,
   sceneFrame: false,
-  /** drei useProgress (0–100); 100 when no assets are queued */
+  /** asset progress (0–100); the scene is procedural, so this stays 100 */
   assets: 100,
   /** true when the device gets the 2D fallback (no 3D to wait for) */
   no3D: false,

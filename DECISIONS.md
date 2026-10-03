@@ -11,7 +11,7 @@ Choices made where the spec was unspecified or where following it literally conf
 
 ## Loader
 
-- drei `useProgress` is wired in, but the scene loads no external assets (everything is procedural), so it reports 100 immediately. The counter therefore tracks real milestones: fonts ready, drei progress, and the **first rendered WebGL frame** (or the fallback being chosen). Min 1.2s, max 3s as specified.
+- The scene loads no external assets (everything is procedural), so there is no asset progress to report (drei `useProgress` was removed to save bundle size). The counter therefore tracks real milestones: fonts ready and the **first rendered WebGL frame** (or the fallback being chosen). Min 1.2s, max 3s as specified.
 - The loader is server-rendered so it covers first paint. An inline `<head>` script hides it before paint on repeat visits (sessionStorage) and under reduced motion; `<noscript>` hides it entirely.
 
 ## 3D scene
