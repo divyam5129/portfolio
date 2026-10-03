@@ -29,8 +29,8 @@ Each section has a palette (time of day) and a camera pose. **These three lists 
 | 1 | `hero` | The Bay | Dawn 06:12 | Golden Gate line drawing draws itself; name and buttons fade up; "Open to June 2027 roles" pill; View work / Resume buttons |
 | 2 | `about` | About | Sunrise | Statement with three phrases in colour; portrait (generated landscape + "DG" until a photo is added); spec row; 3 stat cards (roles, class of, available from) |
 | 3 | `now` | Now | Morning | 4 glass cards: Studying / Working (EY) / Looking for (2027 roles) / Community (IIA) |
-| 4 | `experience` | Experience | Midday | **"Experience."** Pinned. One chapter per role plus a straight progress timeline (see §5) |
-| 5 | `toolkit` | IT Controls | Afternoon | "What I work on." 4 ITGC domain cards (Access, Change, Operations, Development) that expand to "Typical evidence"; a 5-step "How a control gets tested" line that fills with scroll |
+| 4 | `experience` | Experience | Midday | **"Experience."** A ledger (No. · Role · Organization · Period). Pinned on desktop: focus moves down the rows with scroll and the row in focus opens (summary, bullets, tags) (see §5) |
+| 5 | `toolkit` | IT Controls | Afternoon | "What I work on." 4 ITGC domain cards that expand to "Typical evidence"; then a pinned walkthrough: 5 steps beside an example workpaper (user access review) that fills in step by step. Example data lives in `site.toolkit.example`, labelled "Illustrative example · not client data" |
 | 6 | `trail-map` | Trail Map | Golden hour | Pinned (240% scroll) topo plate of the Sierra Nevada, Tahoe to Yosemite: 200 m contours, lakes, rivers, highways, Yosemite NP boundary, peaks, towns. Route draws between the 3 real trips; trip cards show area, elevation, coordinates, date, nights |
 | 7 | `gallery` | Gallery | Sunset | "Outdoors": horizontal-scroll photo strip of the camping trips, with a lightbox |
 | 8 | `skills` | Skills | Dusk | "Skills": coloured tags in two groups (Work, Interests) |
@@ -88,7 +88,7 @@ public/               resume.pdf (placeholder), og.jpg, audio/ambient.mp3, photo
 - **Time of day:** `SmoothScroll.tsx` reads eased scroll progress and calls `paletteAt(section + local)`. The result goes to `scrollStore.palette` (the 3D scene reads it every frame) and to the CSS variables `--accent`, `--accent-2`, `--sky-top`, `--sky-mid` and `--horizon` (the UI reads those). To recolour a section, edit its entry in `lib/timeOfDay.ts`.
 - **Per-frame values never go in React state.** Use `scrollStore` in `lib/gsap.ts`: `progress`, `eased`, `section`, `experience` (0–1), `pointer`, `palette`, `velocity` and `reducedMotion`.
 - **Animation:** use GSAP only. Don't add Framer Motion. Section setup uses `useGSAP` with `{ scope }`.
-- **Pinned sections:** Experience, Trail Map and Gallery are pinned, with `refreshPriority` 3/2/1. Experience and Trail Map create their pins after mount, so they call `ScrollTrigger.sort()` and then `refresh()`. Keep that pattern if you add another pin.
+- **Pinned sections:** Experience, the IT controls walkthrough, Trail Map and Gallery are pinned, with `refreshPriority` 3/2.5/2/1. Pins created after mount call `ScrollTrigger.sort()` and then `refresh()`. Keep that pattern if you add another pin.
 - **3D budget:** at most about 60k triangles, at most 1 directional + 1 ambient light (firelight is faked in shaders and sprites), dpr `[1,1.6]` on desktop and `[1,1.25]` on mobile. Bloom is desktop only. Phones (<768px), devices with fewer than 4 cores and no-WebGL browsers get the 2D fallback. You can force either with `?scene=3d` or `?scene=2d`.
 - **Load order:** there is no loader screen. The 2D landscape paints first; the hero intro starts once fonts are in (max 600ms). On 3D devices the WebGL chunk is fetched 1.2s after that (on idle), and `SceneRoot` fades the canvas in on its first frame, then unmounts the 2D layer.
 - **Motion is deliberately restrained** (owner's call: keep it professional). Entrances use `reveal()` from `lib/anim.ts` only: a short fade-up, once. No custom cursor, tilt, scramble, per-letter splits, cursor-reactive effects, count-ups or marquees. The Golden Gate draw is the one showpiece; keep it.
@@ -100,23 +100,18 @@ public/               resume.pdf (placeholder), og.jpg, audio/ambient.mp3, photo
 
 ## 5. Experience section
 
-The file is `components/sections/Experience.tsx`, and its data is `data/experience.ts`.
+The file is `components/sections/Experience.tsx`, and its data is `data/experience.ts` (`chapters` + `summit` for the "What's next" row).
 
-- **Desktop (≥900px, motion on):** the section pins for `(N-1)×85%` of scroll. Only one chapter shows at a time: a big gradient number, the org, the title, the period, and a glass card with the summary, bullets and skill tags.
-- **Timeline (bottom of the section):** a straight line with evenly spaced step markers; a gradient fill grows with scroll (`scaleX`).
-- **Chapter changes:** the chapter switches at the halfway point between markers, with a direction-aware transition.
-- **Waypoints:** each waypoint is a button that jumps to its chapter.
-- **Last waypoint:** "What's next", showing two paths (Tech controls / risk advisory and Finance & economics analytics) and "Graduating May 2027. Available from June 2027."
-- **Phones and reduced motion:** the chapters stack vertically with reveal animations. `data-mode` on the section is `stacked` or `pinned`.
+- **Desktop (≥900px, motion on):** the section pins for `(N-1)×70%` of scroll. Rows are a ledger; the row in focus opens with a grid-rows transition, the others stay as one-line entries at reduced opacity. A rail on the left fills with scroll. Each row is a button that jumps to it. `data-mode` is `pinned`.
+- **Phones and reduced motion:** every row is open, with the shared `reveal()` fade. `data-mode` is `stacked`.
 - **3D link:** `scrollStore.experience` drives the camera along an invisible path over the terrain (`trailCurve()` in `world.ts`).
+- **Pins:** Experience (refreshPriority 3), the IT controls walkthrough (2.5), Trail Map (2), Gallery (1). Each calls `ScrollTrigger.sort()` + `refresh()` after creating its pin.
 
 Current chapters:
 1. Economics, SJSU (2023–2027, TODO: confirm start year)
 2. Resident Advisor, University Housing Services
 3. Library Shifts, SJSU Library
 4. Tech Risk Intern, EY
-
----
 
 ## 6. Facts about Divyam (use only these; never invent)
 

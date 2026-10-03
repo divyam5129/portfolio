@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
-import { gsap, scrollStore } from "@/lib/gsap";
+import { ScrollTrigger, scrollStore } from "@/lib/gsap";
 import { hues, site, type Hue } from "@/data/site";
 import { reveal } from "@/lib/anim";
+import { getLenis, scrollToTarget } from "@/lib/lenis";
 import { Heading, SectionLabel } from "../ui";
 
 /** Small glyph per ITGC domain. */
@@ -45,39 +46,203 @@ function DomainGlyph({ id, color }: { id: string; color: string }) {
   );
 }
 
+const OK = "#34d399";
+const EXC = "#fbbf24";
+
+/** Fades/slides a block in once the walkthrough reaches `at`. */
+function Stage({ on, children, className = "" }: { on: boolean; children: React.ReactNode; className?: string }) {
+  return (
+    <div
+      className={`transition-[opacity,transform] duration-500 ease-out ${className}`}
+      style={{ opacity: on ? 1 : 0.12, transform: on ? "none" : "translateY(6px)" }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** The example workpaper. `step` (0–4) decides how far it has been filled in. */
+function Workpaper({ step }: { step: number }) {
+  const ex = site.toolkit.example;
+  return (
+    <div className="glass rounded-3xl p-5 md:p-7" aria-label={`Example workpaper: ${ex.control.title}`}>
+      <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[var(--line)] pb-4">
+        <p className="mono">
+          <span className="dim">Workpaper · </span>
+          {`${ex.control.id} ${ex.control.title}`}
+        </p>
+        <p className="mono dim text-[10px]">{ex.label}</p>
+      </div>
+
+      {/* 1 · understand */}
+      <Stage on={step >= 0} className="mt-4 grid gap-3 md:grid-cols-[1fr_auto] md:gap-6">
+        <p className="text-[15px] leading-snug text-[var(--fg)]/85">{ex.control.text}</p>
+        <p className="mono self-start rounded-full border border-[var(--line-strong)] px-3 py-1.5 text-[10px]">
+          <span className="dim">Risk · </span>
+          {ex.control.risk}
+        </p>
+      </Stage>
+
+      {/* 2 · walk through */}
+      <Stage on={step >= 1} className="mt-5">
+        <ol className="mono flex flex-wrap items-center gap-x-2 gap-y-2 text-[10px]" aria-label="Walkthrough">
+          {ex.walkthrough.map((w, i) => (
+            <li key={w} className="flex items-center gap-2">
+              <span
+                className="rounded-full border px-2.5 py-1 transition-colors duration-500"
+                style={{
+                  borderColor: step >= 1 ? "color-mix(in oklab, var(--accent) 60%, transparent)" : "var(--line)",
+                  transitionDelay: `${step >= 1 ? i * 120 : 0}ms`,
+                }}
+              >
+                {w}
+              </span>
+              {i < ex.walkthrough.length - 1 && <span className="dim">→</span>}
+            </li>
+          ))}
+        </ol>
+      </Stage>
+
+      {/* 3 · sample, 4 · test */}
+      <Stage on={step >= 2} className="mt-5">
+        <p className="mono dim text-[10px]">{`Sample from ${ex.population}`}</p>
+        <div className="mt-2 overflow-x-auto">
+          <table className="mono w-full min-w-[520px] border-collapse text-left text-[11px]">
+            <thead>
+              <tr className="dim border-b border-[var(--line)]">
+                <th className="py-2 pr-3 font-normal">#</th>
+                <th className="py-2 pr-3 font-normal">User</th>
+                <th className="py-2 pr-3 font-normal">Role</th>
+                <th className="py-2 pr-3 font-normal">Decision</th>
+                {ex.attributes.map((a) => (
+                  <th key={a} className="py-2 pr-3 text-center font-normal">
+                    {a}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {ex.rows.map((r, i) => (
+                <tr
+                  key={r.id}
+                  className="border-b border-[var(--line)] transition-colors duration-500"
+                  style={{ background: step >= 3 && r.exception ? "color-mix(in oklab, #fbbf24 10%, transparent)" : undefined }}
+                >
+                  <td className="dim py-2 pr-3 tabular-nums">{String(i + 1).padStart(2, "0")}</td>
+                  <td className="py-2 pr-3">{r.id}</td>
+                  <td className="py-2 pr-3 text-[var(--fg)]/80">{r.role}</td>
+                  <td className="py-2 pr-3">{r.decision}</td>
+                  {ex.attributes.map((a, k) => {
+                    const fail = r.exception && k === ex.attributes.length - 1;
+                    return (
+                      <td key={a} className="py-2 pr-3 text-center">
+                        <span
+                          className="inline-block transition-[opacity,transform] duration-300"
+                          style={{
+                            opacity: step >= 3 ? 1 : 0,
+                            transform: step >= 3 ? "none" : "scale(0.6)",
+                            transitionDelay: `${step >= 3 ? (i * ex.attributes.length + k) * 40 : 0}ms`,
+                            color: fail ? EXC : OK,
+                          }}
+                          aria-label={fail ? "Exception" : "Pass"}
+                        >
+                          {fail ? "✕" : "✓"}
+                        </span>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p
+          className="mono mt-2 text-[10px] transition-opacity duration-500"
+          style={{ color: EXC, opacity: step >= 3 ? 1 : 0, transitionDelay: step >= 3 ? "700ms" : "0ms" }}
+        >
+          {`Exception · ${ex.exceptionNote}`}
+        </p>
+      </Stage>
+
+      {/* 5 · document */}
+      <Stage on={step >= 4} className="mt-5 flex flex-wrap items-end justify-between gap-4 border-t border-[var(--line)] pt-4">
+        <p className="max-w-[46ch] text-[14px] leading-snug">
+          <span className="mono dim block text-[10px]">Conclusion</span>
+          {ex.conclusion}
+        </p>
+        <p className="mono text-right text-[10px]">
+          <span className="dim">Prepared · </span>
+          <span style={{ color: OK }}>✓</span>
+          <br />
+          <span className="dim">Reviewed · </span>
+          <span style={{ color: OK }}>✓</span>
+        </p>
+      </Stage>
+    </div>
+  );
+}
+
 export default function Toolkit() {
   const root = useRef<HTMLElement>(null);
+  const walk = useRef<HTMLDivElement>(null);
+  const rail = useRef<HTMLSpanElement>(null);
+  const st = useRef<ScrollTrigger | null>(null);
   const [open, setOpen] = useState<string | null>(null);
+  const [pinned, setPinned] = useState(false);
+  const [step, setStep] = useState(4);
   const { toolkit } = site;
+  const S = toolkit.process.length;
+
+  // pinned walkthrough on desktop with motion; otherwise the finished workpaper
+  useEffect(() => {
+    const decide = () => setPinned(window.innerWidth >= 900 && !scrollStore.reducedMotion);
+    decide();
+    const mq = window.matchMedia("(min-width: 900px)");
+    mq.addEventListener("change", decide);
+    return () => mq.removeEventListener("change", decide);
+  }, []);
 
   useGSAP(
     () => {
-      const reduced = scrollStore.reducedMotion;
       reveal(".tk-intro", ".tk-intro");
       reveal(".domain", ".domains");
-
-      // process: the line fills and each step lights as you scroll past
-      const steps = gsap.utils.toArray<HTMLElement>(".step");
-      if (reduced) {
-        gsap.set([".process-fill-x", ".process-fill-y"], { scaleX: 1, scaleY: 1 });
-        steps.forEach((s) => s.setAttribute("data-on", "true"));
+      if (!pinned) {
+        setStep(S - 1);
+        reveal(".walk-col", walk.current!);
         return;
       }
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: ".process",
-          start: "top 75%",
-          end: "bottom 55%",
-          scrub: 0.6,
-          onUpdate: (self) => {
-            steps.forEach((s, i) => s.setAttribute("data-on", String(self.progress >= (i + 0.15) / steps.length)));
-          },
+      setStep(0);
+      const trigger = ScrollTrigger.create({
+        trigger: walk.current,
+        start: "top top",
+        end: `+=${(S - 1) * 55}%`,
+        pin: true,
+        scrub: 0.4,
+        refreshPriority: 2.5,
+        onUpdate: (self) => {
+          setStep(Math.min(S - 1, Math.floor(self.progress * (S - 1) + 0.5)));
+          if (rail.current) rail.current.style.transform = `scaleY(${self.progress})`;
         },
       });
-      tl.fromTo(".process-fill-x", { scaleX: 0 }, { scaleX: 1, ease: "none" }, 0).fromTo(".process-fill-y", { scaleY: 0 }, { scaleY: 1, ease: "none" }, 0);
+      st.current = trigger;
+      if (rail.current) rail.current.style.transform = "scaleY(0)";
+      ScrollTrigger.sort();
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+      return () => {
+        trigger.kill();
+        st.current = null;
+      };
     },
-    { scope: root },
+    { scope: root, dependencies: [pinned], revertOnUpdate: true },
   );
+
+  const jump = (i: number) => {
+    const s = st.current;
+    if (!s) return;
+    const y = s.start + (s.end - s.start) * (i / (S - 1)) + 2;
+    if (getLenis()) scrollToTarget(y, 1.2);
+    else window.scrollTo({ top: y });
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -87,7 +252,7 @@ export default function Toolkit() {
   }, [open]);
 
   return (
-    <section id="toolkit" ref={root} aria-labelledby="toolkit-title" className="relative py-[16vh]">
+    <section id="toolkit" ref={root} aria-labelledby="toolkit-title" className="relative pt-[16vh]">
       <div className="wrap">
         <div className="grid gap-6 md:grid-cols-12 md:items-end">
           <div className="md:col-span-7">
@@ -143,41 +308,65 @@ export default function Toolkit() {
             );
           })}
         </ul>
+      </div>
 
-        {/* how a control gets tested */}
-        <div className="process mt-20">
+      {/* how a control gets tested: steps beside a workpaper that fills in */}
+      <div ref={walk} className={`wrap grid gap-8 md:grid-cols-12 md:gap-6 ${pinned ? "h-[100svh] content-center" : "py-[14vh]"}`}>
+        <div className="walk-col min-w-0 md:col-span-4">
           <p className="mono legible flex items-center gap-2.5">
             <span className="dot" aria-hidden />
             {"// How a control gets tested"}
           </p>
-          <ol className="relative mt-10 grid gap-8 md:grid-cols-5 md:gap-4">
-            {/* track */}
-            <span className="absolute left-[11px] top-0 h-full w-px bg-[var(--line)] md:left-0 md:top-[11px] md:h-px md:w-full" aria-hidden />
-            <span
-              className="process-fill-y absolute left-[11px] top-0 h-full w-[2px] origin-top md:hidden"
-              style={{ background: "linear-gradient(180deg, var(--accent), var(--accent-2))", boxShadow: "0 0 14px var(--accent)" }}
-              aria-hidden
-            />
-            <span
-              className="process-fill-x absolute left-0 top-[10px] hidden h-[2px] w-full origin-left md:block"
-              style={{ background: "linear-gradient(90deg, var(--accent), var(--accent-2))", boxShadow: "0 0 14px var(--accent)" }}
-              aria-hidden
-            />
-            {toolkit.process.map((p, i) => (
-              <li key={p.title} className="step group relative pl-10 md:pl-0 md:pt-10" data-on="false">
-                <span
-                  className="absolute left-0 top-0 grid h-6 w-6 place-items-center rounded-full border border-[var(--line-strong)] bg-[var(--bg)] transition-all duration-500 group-data-[on=true]:scale-110 group-data-[on=true]:border-transparent group-data-[on=true]:bg-[var(--accent)] group-data-[on=true]:shadow-[0_0_18px_var(--accent)]"
-                  aria-hidden
+          <ol className="relative mt-8 space-y-1 pl-6">
+            <span className="absolute bottom-2 left-0 top-2 w-px bg-[var(--line)]" aria-hidden />
+            {pinned && (
+              <span
+                ref={rail}
+                className="absolute bottom-2 left-0 top-2 w-[2px] origin-top"
+                style={{ background: "linear-gradient(180deg, var(--accent), var(--accent-2))" }}
+                aria-hidden
+              />
+            )}
+            {toolkit.process.map((p, i) => {
+              const active = step === i;
+              const done = step >= i;
+              const body = (
+                <>
+                  <span className="mono text-[10px]" style={{ color: done ? "var(--accent)" : "var(--fg-dim)" }}>
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="legible block text-[22px] font-semibold tracking-[-0.02em]">{p.title}</span>
+                  <span
+                    className="grid transition-[grid-template-rows,opacity] duration-500 ease-out"
+                    style={{ gridTemplateRows: active || !pinned ? "1fr" : "0fr", opacity: active || !pinned ? 1 : 0 }}
+                  >
+                    <span className="overflow-hidden">
+                      <span className="legible block pt-1 text-[15px] leading-snug text-[var(--fg)]/75">{p.body}</span>
+                    </span>
+                  </span>
+                </>
+              );
+              return (
+                <li
+                  key={p.title}
+                  className="transition-opacity duration-500"
+                  style={{ opacity: !pinned || done ? 1 : 0.4 }}
+                  aria-current={pinned && active ? "step" : undefined}
                 >
-                  <span className="mono text-[9px] text-[var(--fg)] group-data-[on=true]:text-[#0b0d0e]">{i + 1}</span>
-                </span>
-                <h3 className="legible text-[22px] font-semibold tracking-[-0.02em] opacity-50 transition-opacity duration-500 group-data-[on=true]:opacity-100">
-                  {p.title}
-                </h3>
-                <p className="legible mt-2 text-[15px] leading-snug text-[var(--fg)]/70">{p.body}</p>
-              </li>
-            ))}
+                  {pinned ? (
+                    <button type="button" onClick={() => jump(i)} className="block w-full py-2 text-left">
+                      {body}
+                    </button>
+                  ) : (
+                    <div className="py-2">{body}</div>
+                  )}
+                </li>
+              );
+            })}
           </ol>
+        </div>
+        <div className="walk-col min-w-0 md:col-span-8">
+          <Workpaper step={step} />
         </div>
       </div>
     </section>

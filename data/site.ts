@@ -115,6 +115,29 @@ export const site = {
       { title: "Test", body: "Check design and operating effectiveness against evidence." },
       { title: "Document", body: "Workpapers clear enough for a reviewer to re-perform." },
     ],
+    // The workpaper that builds up beside the steps. Generic, made-up example data: not from any client.
+    example: {
+      label: "Illustrative example · not client data",
+      control: {
+        id: "AC-03",
+        title: "Quarterly user access review",
+        text: "Each quarter the system owner reviews who can access the finance system and removes anyone who no longer needs it.",
+        risk: "People keep access they no longer need.",
+      },
+      walkthrough: ["Listing pulled", "Owner reviews", "Removals ticketed", "Access removed"],
+      population: "Q3 review listing",
+      attributes: ["Reviewed", "Action taken", "On time"],
+      rows: [
+        { id: "USR-0142", role: "AP clerk", decision: "Keep", exception: false },
+        { id: "USR-0217", role: "GL accountant", decision: "Keep", exception: false },
+        { id: "USR-0388", role: "Contractor, left", decision: "Remove", exception: true },
+        { id: "USR-0401", role: "Payroll admin", decision: "Keep", exception: false },
+        { id: "USR-0456", role: "IT support", decision: "Remove", exception: false },
+        { id: "USR-0519", role: "Controller", decision: "Keep", exception: false },
+      ],
+      exceptionNote: "Removal ticketed but access still active 45 days later.",
+      conclusion: "1 exception: a removal was not completed on time. Evaluated and reported to management.",
+    },
   },
 
   skills: {

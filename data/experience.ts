@@ -1,4 +1,4 @@
-// Experience. Each chapter is a waypoint on the progress line, in order. Keep bullets factual: no invented metrics,
+// Experience: one ledger row per chapter, in order. Keep bullets factual: no invented metrics,
 // awards or dates. "TODO" values render as an em dash.
 
 import type { Hue } from "./site";
@@ -6,8 +6,6 @@ import type { Hue } from "./site";
 export type Chapter = {
   id: string;
   kind: "education" | "role";
-  /** short label under the waypoint on the elevation profile */
-  waypoint: string;
   title: string;
   org: string;
   period: string;
@@ -21,7 +19,6 @@ export const chapters: Chapter[] = [
   {
     id: "sjsu",
     kind: "education",
-    waypoint: "SJSU",
     title: "Economics, SJSU",
     org: "San José State University",
     period: "2023–2027", // TODO: confirm start year
@@ -36,7 +33,6 @@ export const chapters: Chapter[] = [
   {
     id: "ra",
     kind: "role",
-    waypoint: "Resident Advisor",
     title: "Resident Advisor",
     org: "University Housing Services, SJSU",
     period: "TODO", // TODO: dates
@@ -52,7 +48,6 @@ export const chapters: Chapter[] = [
   {
     id: "library",
     kind: "role",
-    waypoint: "Library",
     title: "Library Shifts",
     org: "SJSU Library",
     period: "TODO", // TODO: dates
@@ -64,7 +59,6 @@ export const chapters: Chapter[] = [
   {
     id: "ey",
     kind: "role",
-    waypoint: "EY",
     title: "Tech Risk Intern",
     org: "EY",
     period: "TODO", // TODO: dates
@@ -79,9 +73,8 @@ export const chapters: Chapter[] = [
   },
 ];
 
-/** The last waypoint: what's next. */
+/** The last ledger row: what's next. */
 export const summit = {
-  waypoint: "Next",
   title: "What's next",
   line: "Graduating May 2027. Available from June 2027.",
   paths: [
