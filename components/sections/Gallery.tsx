@@ -11,11 +11,10 @@ import { PhotoPlaceholder, SectionLabel } from "../ui";
 type Shot = { src: string; alt: string; caption: string; seed: string; biome?: Biome; label: string };
 
 const shots: Shot[] = tripsChronological.flatMap((t) => {
-  const year = t.date.slice(0, 4);
-  const caption = `// ${shortName(t.name)}, ${year}`;
+  const caption = t.date ? `// ${shortName(t.name)}, ${t.date.slice(0, 4)}` : `// ${shortName(t.name)}`;
   const base = { seed: t.id, biome: t.biome, label: shortName(t.name).toUpperCase() };
-  if (!t.photos.length) return [{ ...base, src: "", alt: `${t.name}, ${formatTripDate(t.date)} (photo coming soon)`, caption }];
-  return t.photos.map((src, i) => ({ ...base, src, alt: `${t.name}, ${formatTripDate(t.date)}, photo ${i + 1}`, caption }));
+  if (!t.photos.length) return [{ ...base, src: "", alt: `${t.name} (photo coming soon)`, caption }];
+  return t.photos.map((src, i) => ({ ...base, src, alt: `${t.name}${t.date ? `, ${formatTripDate(t.date)}` : ""}, photo ${i + 1}`, caption }));
 });
 
 export default function Gallery() {

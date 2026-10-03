@@ -1,14 +1,18 @@
 // Camping trips for the Trail Map and Gallery.
-// Trips are drawn in chronological order of `date` (YYYY-MM).
+// Trips are drawn in chronological order of `date` (YYYY-MM) once every trip has one.
 
 export type Trip = {
   id: string;
-  name: string; // "Big Sur: Pfeiffer Campground"
+  name: string; // "Yosemite Valley" or "Yosemite Valley: Upper Pines"
+  /** Park / area shown on the trip card. */
+  area: string;
   lat: number;
   lng: number;
-  date: string; // "2025-08"
+  /** Elevation of the campsite area, feet. */
+  elevationFt: number;
+  date?: string; // "2025-08"; leave out (TODO) until known
   blurb: string; // 1–2 lines
-  photos: string[]; // paths in /public/photos; empty = grey placeholder
+  photos: string[]; // paths in /public/photos; empty = generated placeholder art
   nights?: number;
   /** Colour family for the pin and placeholder art. */
   biome?: Biome;
@@ -17,109 +21,61 @@ export type Trip = {
 export type Biome = "coast" | "forest" | "desert" | "alpine" | "lake" | "volcanic";
 
 export const campingConfig: {
-  region: "us" | "ca";
   /** Optional total trail miles. Leave undefined to render "—". */
   miles?: number;
 } = {
-  region: "ca",
   miles: undefined, // TODO: add if you track it
 };
 
-// PLACEHOLDER: replace with real trips (names, dates, nights, blurbs and photos).
+/**
+ * Real trips. Blurbs describe the places themselves; swap in your own words any time.
+ * TODO: add `date` ("YYYY-MM"), `nights`, the campground name (e.g. "Yosemite Valley: Upper Pines")
+ * and photos for each. Order here is the order the route is drawn until every trip has a date.
+ */
 export const trips: Trip[] = [
   {
-    id: "point-reyes",
-    name: "Point Reyes: Coast Camp",
-    lat: 38.0156,
-    lng: -122.8556,
-    date: "2023-10",
-    blurb: "PLACEHOLDER: fog rolling off the Pacific, elk on the bluffs.",
+    id: "yosemite-valley",
+    name: "Yosemite Valley",
+    area: "Yosemite National Park",
+    lat: 37.7398,
+    lng: -119.5661,
+    elevationFt: 4000,
+    blurb: "The valley floor between El Capitan and Half Dome, with the Merced River running through it.",
     photos: [],
-    nights: 1,
-    biome: "coast",
-  },
-  {
-    id: "pinnacles",
-    name: "Pinnacles: Pinnacles Campground",
-    lat: 36.4934,
-    lng: -121.1462,
-    date: "2024-03",
-    blurb: "PLACEHOLDER: talus caves with a headlamp, condors overhead.",
-    photos: [],
-    nights: 2,
-    biome: "desert",
-  },
-  {
-    id: "big-sur",
-    name: "Big Sur: Pfeiffer Campground",
-    lat: 36.2508,
-    lng: -121.7845,
-    date: "2024-06",
-    blurb: "PLACEHOLDER: redwoods by the river, sunset on Highway 1.",
-    photos: [],
-    nights: 2,
-    biome: "coast",
-  },
-  {
-    id: "yosemite",
-    name: "Yosemite Valley: Upper Pines",
-    lat: 37.7356,
-    lng: -119.5627,
-    date: "2024-08",
-    blurb: "PLACEHOLDER: granite walls at first light, Mist Trail by mid-morning.",
-    photos: [],
-    nights: 3,
     biome: "alpine",
   },
   {
-    id: "tahoe",
-    name: "Lake Tahoe: D.L. Bliss",
-    lat: 38.9741,
-    lng: -120.1013,
-    date: "2024-09",
-    blurb: "PLACEHOLDER: clear water, cold mornings, Rubicon Trail.",
+    id: "tuolumne",
+    name: "Tuolumne Meadows",
+    area: "Yosemite National Park · Tioga Road",
+    lat: 37.8743,
+    lng: -119.3583,
+    elevationFt: 8600,
+    blurb: "High-country meadow on Tioga Road, ringed by granite domes and the peaks of the Cathedral Range.",
     photos: [],
-    nights: 2,
-    biome: "lake",
-  },
-  {
-    id: "joshua-tree",
-    name: "Joshua Tree: Jumbo Rocks",
-    lat: 33.9918,
-    lng: -116.0619,
-    date: "2025-01",
-    blurb: "PLACEHOLDER: boulders, desert silence, more stars than sky.",
-    photos: [],
-    nights: 2,
-    biome: "desert",
-  },
-  {
-    id: "sequoia",
-    name: "Sequoia: Lodgepole",
-    lat: 36.6047,
-    lng: -118.7246,
-    date: "2025-06",
-    blurb: "PLACEHOLDER: the biggest trees on earth, and a long climb to Alta Peak.",
-    photos: [],
-    nights: 2,
     biome: "forest",
   },
   {
-    id: "lassen",
-    name: "Lassen Volcanic: Manzanita Lake",
-    lat: 40.5329,
-    lng: -121.5639,
-    date: "2025-08",
-    blurb: "PLACEHOLDER: steaming fumaroles and a lake that mirrors the peak.",
+    // TODO: move the pin to the actual campground (it sits on the lake for now)
+    id: "tahoe",
+    name: "Lake Tahoe",
+    area: "Sierra Nevada · California–Nevada line",
+    lat: 39.09,
+    lng: -120.04,
+    elevationFt: 6225,
+    blurb: "The largest alpine lake in North America, straddling the California–Nevada line.",
     photos: [],
-    nights: 2,
-    biome: "volcanic",
+    biome: "lake",
   },
 ];
 
-export const tripsChronological = [...trips].sort((a, b) => a.date.localeCompare(b.date));
+/** Chronological once every trip has a date; otherwise the order above. */
+export const tripsChronological = trips.every((t) => t.date)
+  ? [...trips].sort((a, b) => a.date!.localeCompare(b.date!))
+  : trips;
 
-export function formatTripDate(date: string): string {
+export function formatTripDate(date?: string): string {
+  if (!date) return "—";
   const [y, m] = date.split("-").map(Number);
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   return m ? `${months[m - 1]} ${y}` : String(y);

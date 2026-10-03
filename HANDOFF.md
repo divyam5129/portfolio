@@ -10,7 +10,7 @@ A scroll-driven, cinematic personal portfolio for **Divyam Gupta** (economics se
 
 **Core idea: "The Trail."** The site is a single walk across a low-poly mountain landscape. **As you scroll, the time of day moves from dawn to night**, and both the 3D sky and the page's accent colours follow it. The site opens on a self-drawing **Golden Gate Bridge** line drawing and ends at night by a glowing tent and campfire.
 
-**Stack:** Next.js 15 (App Router) + TypeScript 5.9 · Tailwind CSS v4 · GSAP 3.15 + ScrollTrigger, DrawSVG (free) · Lenis smooth scroll · three.js + @react-three/fiber 9 + postprocessing (bloom/noise/vignette, wired up directly in `Scene/Effects.tsx`; don't add drei or @react-three/postprocessing back, they add ~70 kB gzipped) · d3-geo, d3-shape, topojson, us-atlas (the map). Fonts are self-hosted from npm (Inter Tight + JetBrains Mono) via `next/font/local`. It deploys to Vercel with no configuration.
+**Stack:** Next.js 15 (App Router) + TypeScript 5.9 · Tailwind CSS v4 · GSAP 3.15 + ScrollTrigger, DrawSVG (free) · Lenis smooth scroll · three.js + @react-three/fiber 9 + postprocessing (bloom/noise/vignette, wired up directly in `Scene/Effects.tsx`; don't add drei or @react-three/postprocessing back, they add ~70 kB gzipped) · d3-geo, d3-shape (the map; data is pre-baked from Natural Earth + Terrain Tiles). Fonts are self-hosted from npm (Inter Tight + JetBrains Mono) via `next/font/local`. It deploys to Vercel with no configuration.
 
 **Status:** `npm run build` passes with no TypeScript or ESLint errors. It's been tested at 1440px, 1280px and 375px, and with reduced motion. All interactions work by keyboard.
 
@@ -27,7 +27,7 @@ Each section has a palette (time of day) and a camera pose. **These three lists 
 | 3 | `now` | Now | Morning | 4 glass cards: Studying / Working (EY) / Looking for (2027 roles) / Community (IIA) |
 | 4 | `experience` | Experience | Midday | **"The climb so far."** Pinned. One chapter per role plus an elevation profile with a climbing hiker (see §5) |
 | 5 | `toolkit` | Field Guide | Afternoon | "The terrain I work in." 4 ITGC domain cards (Access, Change, Operations, Development) that expand to "Typical evidence"; a 5-step "How a control gets tested" line that fills with scroll |
-| 6 | `trail-map` | Trail Map | Golden hour | Pinned California map: route draws, coloured pins drop, trip cards open, Replay button, timeline scrubber, counters |
+| 6 | `trail-map` | Trail Map | Golden hour | Pinned (240% scroll) topo plate of the Sierra Nevada, Tahoe to Yosemite: 200 m contours, lakes, rivers, highways, Yosemite NP boundary, peaks, towns. Route draws between the 3 real trips; trip cards show area, elevation, coordinates, date, nights |
 | 7 | `gallery` | Gallery | Sunset | Horizontal-scroll photo strip with a lightbox |
 | 8 | `skills` | Skills | Dusk | "Kit list": coloured tags in two groups |
 | 9 | `contact` | Contact | Night (stars + aurora) | "Let's talk."; glass link cards; back to top |
@@ -63,7 +63,9 @@ components/
 data/
   site.ts             ALL copy: name, links, about, now, toolkit, skills, contact, sections, hues
   experience.ts       chapters (education + roles) and the summit
-  camping.ts          trips (lat/lng/date/nights/biome/photos), map config, biome colour palettes
+  camping.ts          trips (area/lat/lng/elevation/date/nights/biome/photos), biome colour palettes
+  mapFeatures.ts      peaks, towns and area labels drawn on the Trail Map
+  sierra-map.json     baked map layers (contours, lakes, rivers, roads, park, state line); rebuild with `npm run build:map` (scripts/build-sierra-map.mjs)
 lib/
   timeOfDay.ts        the 9 palettes (dawn → night) + interpolation
   gsap.ts             plugin registration, scrollStore (shared per-frame state)
@@ -134,7 +136,7 @@ Rules: no invented metrics, awards, dates, employers or quotes. Unknowns stay as
 | Real resume | replace `public/resume.pdf` |
 | Portrait photo | `public/photos/` + `about.portrait` in `data/site.ts` |
 | Dates for RA, Library and EY; confirm the SJSU start year | `data/experience.ts` (`period`) |
-| **All 8 camping trips are made up** (names, dates, nights, blurbs, biome). Replace with real trips. | `data/camping.ts` |
+| Trips are real (Yosemite Valley, Tuolumne Meadows, Lake Tahoe) but need `date`, `nights`, campground names; the Tahoe pin sits on the lake until the campground is known | `data/camping.ts` |
 | Trip photos (otherwise generated landscape art shows) | `photos: [...]` per trip |
 | Total trail miles (shows "—") | `campingConfig.miles` |
 | Site URL for social previews | Vercel env var `NEXT_PUBLIC_SITE_URL` |
