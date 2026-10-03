@@ -35,23 +35,14 @@ export function shouldUse3D(): boolean {
   const forced = new URLSearchParams(window.location.search).get("scene");
   if (forced === "2d") return false;
   const force3D = forced === "3d";
+  // Phones get the 2D landscape: far less to download and kinder to battery.
+  if (window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`).matches && !force3D) return false;
   const cores = navigator.hardwareConcurrency ?? 4;
   if (cores < 4 && !force3D) return false;
   try {
     const canvas = document.createElement("canvas");
     const gl = (canvas.getContext("webgl2") || canvas.getContext("webgl")) as WebGLRenderingContext | null;
     if (!gl) return false;
-    const mobile = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`).matches;
-    if (mobile && !force3D) {
-      // Rough mobile GPU test: very small texture limits = weak GPU.
-      const maxTex = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number;
-      if (maxTex < 4096) return false;
-      const dbg = gl.getExtension("WEBGL_debug_renderer_info");
-      if (dbg) {
-        const renderer = String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL));
-        if (/Mali-4|Adreno \(TM\) [1-4]\d\d|PowerVR SGX/i.test(renderer)) return false;
-      }
-    }
     return true;
   } catch {
     return false;

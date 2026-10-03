@@ -58,7 +58,7 @@ components/
     CameraRig.tsx     camera path through the poses, trail ride during Experience, fog, the 2 lights
     SceneCanvas.tsx   <Canvas> composition
     Effects.tsx       bloom/noise/vignette composer (desktop only)
-    SceneRoot.tsx     picks 3D vs 2D fallback; fixed layer behind the page
+    SceneRoot.tsx     2D layer first; on desktop, fetches 3D after the hero and cross-fades to it
     Sky.tsx           sky dome: gradient, sun, clouds, moon, stars, aurora
     Terrain.tsx       shaded terrain (height/slope colours + contour lines + firelight)
     Water.tsx         alpine lake;  Forest.tsx  instanced pines;  Tent.tsx  tent + campfire + trail + posts
@@ -87,7 +87,8 @@ public/               resume.pdf (placeholder), og.jpg, audio/ambient.mp3, photo
 - **Per-frame values never go in React state.** Use `scrollStore` in `lib/gsap.ts`: `progress`, `eased`, `section`, `experience` (0–1), `pointer`, `palette`, `velocity` and `reducedMotion`.
 - **Animation:** use GSAP only. Don't add Framer Motion. Section setup uses `useGSAP` with `{ scope }`.
 - **Pinned sections:** Experience, Trail Map and Gallery are pinned, with `refreshPriority` 3/2/1. Experience and Trail Map create their pins after mount, so they call `ScrollTrigger.sort()` and then `refresh()`. Keep that pattern if you add another pin.
-- **3D budget:** at most about 60k triangles, at most 1 directional + 1 ambient light (firelight is faked in shaders and sprites), dpr `[1,1.6]` on desktop and `[1,1.25]` on mobile. Bloom is desktop only. Devices with fewer than 4 cores or weak mobile GPUs get the 2D fallback. You can force either with `?scene=3d` or `?scene=2d`.
+- **3D budget:** at most about 60k triangles, at most 1 directional + 1 ambient light (firelight is faked in shaders and sprites), dpr `[1,1.6]` on desktop and `[1,1.25]` on mobile. Bloom is desktop only. Phones (<768px), devices with fewer than 4 cores and no-WebGL browsers get the 2D fallback. You can force either with `?scene=3d` or `?scene=2d`.
+- **Load order:** the loader waits only for fonts (min 1.2s). The 2D landscape paints first; on 3D devices the WebGL chunk is fetched 1.2s after the loader lifts (on idle), and `SceneRoot` fades the canvas in on its first frame, then unmounts the 2D layer. Don't make the loader wait on 3D again.
 - **Shaders compute in linear colour space** and end with `#include <colorspace_fragment>`, so they look the same with and without the bloom pass. Set colours with `color.setRGB(r,g,b, THREE.SRGBColorSpace)`.
 - **Reduced motion:** Lenis is off, nothing is pinned, everything is drawn or shown immediately, and the 3D scene renders on demand. `scrollStore.reducedMotion` is read when the module loads, on purpose: sections set up before any provider effect runs.
 - **Hero bridge:** `GoldenGate.tsx` is plain SVG. The draw order is set in `Hero.tsx` (the `draw` timeline, which plays when the loader finishes). The hero camera looks up into the dawn sky so the tent isn't in the opening shot.

@@ -15,7 +15,7 @@ import Effects from "./Effects";
 import { scrollStore } from "@/lib/gsap";
 import { setLoad } from "@/lib/loadStore";
 
-/** Reports the first rendered frame to the loader (the scene is procedural: no assets to wait on). */
+/** Reports the first rendered frame so SceneRoot can fade the canvas in. */
 function LoadReporter() {
   const gl = useThree((s) => s.gl);
   useEffect(() => {
