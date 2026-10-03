@@ -3,7 +3,7 @@
 
 export const site = {
   name: "Divyam Gupta",
-  tagline: "Economics student · technology risk · camper",
+  tagline: "Economics student · Technology risk intern",
   location: "San José, CA",
   email: "you@example.com", // TODO: real email
   linkedin: "https://www.linkedin.com/in/TODO", // TODO
@@ -20,12 +20,12 @@ export const site = {
 
   about: {
     statement:
-      "I study economics and technology risk at San José State, and I spend my free time somewhere without Wi-Fi.",
+      "I study economics at San José State and work in technology risk, testing the IT controls that keep financial systems trustworthy.",
     // phrases in the statement that get their own colour
     highlights: [
       { text: "economics", hue: "gold" },
       { text: "technology risk", hue: "sky" },
-      { text: "without Wi-Fi", hue: "pine" },
+      { text: "IT controls", hue: "pine" },
     ],
     portrait: "", // e.g. "/photos/portrait.jpg". Empty = neutral placeholder frame.
     portraitAlt: "Portrait of Divyam Gupta",
@@ -40,7 +40,7 @@ export const site = {
   // "Now": what's happening at the moment. Each item is a card.
   now: {
     title: "Right now",
-    intro: "Senior year, a tech risk internship, and the search for a full-time role in 2027. The trip planning never stops either.",
+    intro: "Senior year, a tech risk internship at EY, and the search for a full-time role starting June 2027.",
     items: [
       {
         kicker: "Studying",
@@ -69,9 +69,9 @@ export const site = {
     ],
   },
 
-  // "Field guide": IT general controls explained in plain English.
+  // IT general controls explained in plain English.
   toolkit: {
-    title: "The terrain I work in",
+    title: "What I work on",
     intro: "IT general controls, in plain English: the checks that keep the systems behind the numbers trustworthy.",
     domains: [
       {
@@ -119,12 +119,12 @@ export const site = {
 
   skills: {
     work: ["SOX controls", "IT general controls", "Audit documentation", "Excel", "Python", "Economics"],
-    outdoors: ["Trip planning", "Navigation", "Backpacking", "Photography"],
+    interests: ["Camping", "Trip planning", "Navigation", "Photography"],
   },
 
   contact: {
     headline: "Let's talk.",
-    intro: "Recruiters, collaborators, and anyone with a good campsite recommendation.",
+    intro: "Open to new-grad roles in IT audit, tech risk, internal audit and risk management from June 2027.",
   },
 
   // Section labels used in the HUD and section headers. Order = scroll order.
@@ -133,7 +133,7 @@ export const site = {
     { id: "about", label: "About" },
     { id: "now", label: "Now" },
     { id: "experience", label: "Experience" },
-    { id: "toolkit", label: "Field Guide" },
+    { id: "toolkit", label: "IT Controls" },
     { id: "trail-map", label: "Trail Map" },
     { id: "gallery", label: "Gallery" },
     { id: "skills", label: "Skills" },

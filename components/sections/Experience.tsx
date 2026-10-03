@@ -188,12 +188,12 @@ export default function Experience() {
           <div>
             <SectionLabel id="experience" />
             <Heading id="experience-title" className="mt-4">
-              The climb so far.
+              Experience.
             </Heading>
           </div>
           {pinned && (
             <p className="mono glass rounded-full px-4 py-2 tabular-nums" aria-hidden>
-              Waypoint <span ref={readout} className="accent">{`01 / ${String(N).padStart(2, "0")}`}</span>
+              Step <span ref={readout} className="accent">{`01 / ${String(N).padStart(2, "0")}`}</span>
             </p>
           )}
         </header>

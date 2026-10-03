@@ -65,7 +65,7 @@ export default function Gallery() {
       <div className="wrap absolute inset-x-0 top-0 pt-24 md:pt-28">
         <SectionLabel id="gallery" />
         <h2 id="gallery-title" className="h2 legible mt-4">
-          Field notes
+          Outdoors
         </h2>
       </div>
 

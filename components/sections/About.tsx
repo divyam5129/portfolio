@@ -6,7 +6,6 @@ import { useGSAP } from "@gsap/react";
 import { hairlines, reveal } from "@/lib/anim";
 import { display, hues, site, type Hue } from "@/data/site";
 import { chapters } from "@/data/experience";
-import { trips } from "@/data/camping";
 import Landscape from "../Landscape";
 import { Crosshairs, SectionLabel } from "../ui";
 
@@ -45,10 +44,9 @@ export default function About() {
   const frame = useRef<HTMLDivElement>(null);
 
   const stats = [
-    { value: trips.length, label: "Trips on the map", hue: "trail" as Hue },
-    { value: trips.reduce((a, t) => a + (t.nights ?? 0), 0), label: "Nights in a tent", hue: "dusk" as Hue },
     { value: chapters.filter((c) => c.kind === "role").length, label: "Roles so far", hue: "sky" as Hue },
-    { value: Number(site.graduation.match(/\d{4}/)?.[0] ?? 0), label: "Class of", hue: "pine" as Hue },
+    { value: site.graduation.match(/\d{4}/)?.[0] ?? "", label: "Class of", hue: "pine" as Hue },
+    { value: site.availability, label: "Available from", hue: "dawn" as Hue },
   ];
 
   useGSAP(
@@ -113,7 +111,7 @@ export default function About() {
           ))}
         </dl>
 
-        <ul className="stats mt-14 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4" aria-label="By the numbers">
+        <ul className="stats mt-14 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4" aria-label="By the numbers">
           {stats.map((s) => (
             <li
               key={s.label}

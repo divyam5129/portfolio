@@ -20,7 +20,7 @@ export default function Skills() {
 
   const groups = [
     { label: "Work", items: site.skills.work, colors: [hues.sky.a, hues.dawn.b, hues.trail.a, hues.gold.a, hues.pine.a, hues.dusk.a] },
-    { label: "Outdoors", items: site.skills.outdoors, colors: [hues.pine.a, hues.gold.a, hues.dawn.a, hues.dusk.b] },
+    { label: "Interests", items: site.skills.interests, colors: [hues.pine.a, hues.gold.a, hues.dawn.a, hues.dusk.b] },
   ];
 
   return (
@@ -28,7 +28,7 @@ export default function Skills() {
       <div className="wrap">
         <SectionLabel id="skills" />
         <h2 id="skills-title" className="h2 legible mt-4">
-          Kit list
+          Skills
         </h2>
         <div className="mt-14 grid gap-14 md:grid-cols-2 md:gap-6">
           {groups.map((g, gi) => (

@@ -1,5 +1,4 @@
-// Experience: "The climb". Each chapter is a waypoint on the elevation profile,
-// in order from the trailhead up. Keep bullets factual: no invented metrics,
+// Experience. Each chapter is a waypoint on the progress line, in order. Keep bullets factual: no invented metrics,
 // awards or dates. "TODO" values render as an em dash.
 
 import type { Hue } from "./site";
@@ -80,10 +79,10 @@ export const chapters: Chapter[] = [
   },
 ];
 
-/** The last waypoint: where the trail goes next. */
+/** The last waypoint: what's next. */
 export const summit = {
   waypoint: "Next",
-  title: "Next summit",
+  title: "What's next",
   line: "Graduating May 2027. Available from June 2027.",
   paths: [
     { title: "Tech controls / risk advisory", hue: "trail" as Hue },

@@ -8,7 +8,9 @@ Context for picking up this project in a new session. Attach this file **and** `
 
 A scroll-driven, cinematic personal portfolio for **Divyam Gupta** (economics senior at San José State, tech risk intern at EY, camper). It's for anyone: friends, collaborators, recruiters. The look is inspired by igloo.inc: one continuous 3D scene behind the page, with the camera moving as you scroll.
 
-**Core idea: "The Trail."** The site is a single walk across a low-poly mountain landscape. **As you scroll, the time of day moves from dawn to night**, and both the 3D sky and the page's accent colours follow it. The site opens on a self-drawing **Golden Gate Bridge** line drawing and ends at night by a glowing tent and campfire.
+**Core idea:** one continuous low-poly mountain landscape behind the page. **As you scroll, the time of day moves from dawn to night**, and both the 3D sky and the page's accent colours follow it. The site opens on a self-drawing **Golden Gate Bridge** line drawing and ends at night by a glowing tent and campfire.
+
+**Copy tone (owner's call):** professional and plain. Camping belongs only in the Trail Map, the Outdoors gallery and the Interests tags; don't use trail/summit/terrain metaphors in the professional sections.
 
 **Stack:** Next.js 15 (App Router) + TypeScript 5.9 · Tailwind CSS v4 · GSAP 3.15 + ScrollTrigger, DrawSVG (free) · Lenis smooth scroll · three.js + @react-three/fiber 9 + postprocessing (bloom/noise/vignette, wired up directly in `Scene/Effects.tsx`; don't add drei or @react-three/postprocessing back, they add ~70 kB gzipped) · d3-geo, d3-shape (the map; data is pre-baked from Natural Earth + Terrain Tiles). Fonts are self-hosted from npm (Inter Tight + JetBrains Mono) via `next/font/local`. It deploys to Vercel with no configuration.
 
@@ -23,13 +25,13 @@ Each section has a palette (time of day) and a camera pose. **These three lists 
 | # | id | Label | Time of day | What's on screen |
 |---|---|---|---|---|
 | 1 | `hero` | The Bay | Dawn 06:12 | Golden Gate line drawing draws itself; name and buttons fade up; "Open to June 2027 roles" pill; View work / Resume buttons |
-| 2 | `about` | About | Sunrise | Statement with three phrases in colour; portrait (generated landscape + "DG" until a photo is added); spec row; 4 stat cards |
+| 2 | `about` | About | Sunrise | Statement with three phrases in colour; portrait (generated landscape + "DG" until a photo is added); spec row; 3 stat cards (roles, class of, available from) |
 | 3 | `now` | Now | Morning | 4 glass cards: Studying / Working (EY) / Looking for (2027 roles) / Community (IIA) |
-| 4 | `experience` | Experience | Midday | **"The climb so far."** Pinned. One chapter per role plus an elevation profile with a climbing hiker (see §5) |
-| 5 | `toolkit` | Field Guide | Afternoon | "The terrain I work in." 4 ITGC domain cards (Access, Change, Operations, Development) that expand to "Typical evidence"; a 5-step "How a control gets tested" line that fills with scroll |
+| 4 | `experience` | Experience | Midday | **"Experience."** Pinned. One chapter per role plus an elevation profile with a climbing hiker (see §5) |
+| 5 | `toolkit` | IT Controls | Afternoon | "What I work on." 4 ITGC domain cards (Access, Change, Operations, Development) that expand to "Typical evidence"; a 5-step "How a control gets tested" line that fills with scroll |
 | 6 | `trail-map` | Trail Map | Golden hour | Pinned (240% scroll) topo plate of the Sierra Nevada, Tahoe to Yosemite: 200 m contours, lakes, rivers, highways, Yosemite NP boundary, peaks, towns. Route draws between the 3 real trips; trip cards show area, elevation, coordinates, date, nights |
-| 7 | `gallery` | Gallery | Sunset | Horizontal-scroll photo strip with a lightbox |
-| 8 | `skills` | Skills | Dusk | "Kit list": coloured tags in two groups |
+| 7 | `gallery` | Gallery | Sunset | "Outdoors": horizontal-scroll photo strip of the camping trips, with a lightbox |
+| 8 | `skills` | Skills | Dusk | "Skills": coloured tags in two groups (Work, Interests) |
 | 9 | `contact` | Contact | Night (stars + aurora) | "Let's talk."; glass link cards; back to top |
 
 ---
@@ -94,7 +96,7 @@ public/               resume.pdf (placeholder), og.jpg, audio/ambient.mp3, photo
 
 ---
 
-## 5. Experience section ("The climb so far.")
+## 5. Experience section
 
 The file is `components/sections/Experience.tsx`, and its data is `data/experience.ts`.
 
@@ -102,7 +104,7 @@ The file is `components/sections/Experience.tsx`, and its data is `data/experien
 - **Elevation profile (bottom of the section):** a colourful profile with a white hiker dot that climbs as you scroll. The profile line is drawn through a DrawSVG mask path. The visible line uses `vector-effect: non-scaling-stroke`, which DrawSVG can't measure directly.
 - **Chapter changes:** the chapter switches when the hiker passes the halfway point between waypoints, with a direction-aware transition.
 - **Waypoints:** each waypoint is a button that jumps to its chapter.
-- **Last waypoint:** the "Next summit", showing two paths (Tech controls / risk advisory and Finance & economics analytics) and "Graduating May 2027. Available from June 2027."
+- **Last waypoint:** "What's next", showing two paths (Tech controls / risk advisory and Finance & economics analytics) and "Graduating May 2027. Available from June 2027."
 - **Phones and reduced motion:** the chapters stack vertically with reveal animations. `data-mode` on the section is `stacked` or `pinned`.
 - **3D link:** `scrollStore.experience` drives the camera's ride along the 3D trail and lights up the trail posts. There's one post per waypoint (`POST_T` in `world.ts`), so if you add a chapter, add a post value too.
 
