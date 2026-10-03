@@ -186,9 +186,7 @@ export default function TrailMap() {
           if (on) {
             if (reduced) gsap.set(el, { autoAlpha: 1, y: 0 });
             else {
-              gsap.fromTo(el, { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "bounce.out" });
-              const ring = el.querySelector("[data-ripple]");
-              if (ring) gsap.fromTo(ring, { scale: 0.4, autoAlpha: 0.9 }, { scale: 3.2, autoAlpha: 0, duration: 1.1, ease: "power2.out", delay: 0.3 });
+              gsap.fromTo(el, { autoAlpha: 0, y: -8 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" });
             }
           } else gsap.to(el, { autoAlpha: 0, y: -20, duration: 0.25 });
         }
@@ -394,14 +392,12 @@ export default function TrailMap() {
                   type="button"
                   onClick={(e) => openTrip(i, e.currentTarget)}
                   aria-label={`${trips[i].name}, ${formatTripDate(trips[i].date)}`}
-                  data-cursor="VIEW"
                   className="group absolute -translate-x-1/2 -translate-y-full pb-1"
                 >
                   <span
                     className="relative block h-3.5 w-3.5 rounded-full border-2 border-white/90 transition-transform group-hover:scale-125"
                     style={{ background: pinColor(trips[i]), boxShadow: `0 0 14px ${pinColor(trips[i])}` }}
                   >
-                    <span data-ripple className="absolute inset-0 rounded-full border-2 opacity-0" style={{ borderColor: pinColor(trips[i]) }} />
                   </span>
                   <span className="mx-auto block h-2.5 w-px bg-white/70" />
                 </button>
@@ -434,7 +430,7 @@ export default function TrailMap() {
       {/* scrubber + replay */}
       <div className="wrap absolute inset-x-0 bottom-20 z-10 md:bottom-24">
         <div className="flex items-center gap-4 md:max-w-[62%]">
-          <button type="button" onClick={doReplay} className="mono shrink-0" data-cursor="PLAY">
+          <button type="button" onClick={doReplay} className="mono shrink-0">
             Replay ↺
           </button>
           <ol className="relative flex flex-1 items-center justify-between" aria-label="Trip timeline">
@@ -452,7 +448,6 @@ export default function TrailMap() {
                     openTrip(i, e.currentTarget);
                   }}
                   aria-label={`Jump to ${t.name}`}
-                  data-cursor="DRAG"
                   className="block h-3 w-3 -m-1 box-content rounded-full p-1 before:block before:h-full before:w-full before:rounded-full before:border before:border-white/40 before:bg-[rgba(9,11,20,0.6)] data-[on=true]:before:border-white data-[on=true]:before:bg-[var(--pin)] data-[on=true]:before:shadow-[0_0_10px_var(--pin)]"
                   style={{ "--pin": pinColor(t) } as React.CSSProperties}
                 />
@@ -519,7 +514,7 @@ function TripCard({ trip, onClose }: { trip: Trip | null; onClose: () => void })
         <div className="p-5 md:p-6">
           <div className="flex items-start justify-between gap-4">
             <p className="mono dim">{`// ${formatTripDate(shown.date)}${shown.nights ? ` · ${shown.nights} night${shown.nights > 1 ? "s" : ""}` : ""}`}</p>
-            <button ref={closeBtn} type="button" onClick={onClose} className="mono" aria-label="Close trip card" data-cursor="CLOSE">
+            <button ref={closeBtn} type="button" onClick={onClose} className="mono" aria-label="Close trip card">
               Esc ✕
             </button>
           </div>

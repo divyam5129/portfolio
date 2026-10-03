@@ -10,7 +10,7 @@ A scroll-driven, cinematic personal portfolio for **Divyam Gupta** (economics se
 
 **Core idea: "The Trail."** The site is a single walk across a low-poly mountain landscape. **As you scroll, the time of day moves from dawn to night**, and both the 3D sky and the page's accent colours follow it. The site opens on a self-drawing **Golden Gate Bridge** line drawing and ends at night by a glowing tent and campfire.
 
-**Stack:** Next.js 15 (App Router) + TypeScript 5.9 · Tailwind CSS v4 · GSAP 3.15 + ScrollTrigger, DrawSVG, SplitText, Flip (all free) · Lenis smooth scroll · three.js + @react-three/fiber 9 + postprocessing (bloom/noise/vignette, wired up directly in `Scene/Effects.tsx`; don't add drei or @react-three/postprocessing back, they add ~70 kB gzipped) · d3-geo, d3-shape, topojson, us-atlas (the map). Fonts are self-hosted from npm (Inter Tight + JetBrains Mono) via `next/font/local`. It deploys to Vercel with no configuration.
+**Stack:** Next.js 15 (App Router) + TypeScript 5.9 · Tailwind CSS v4 · GSAP 3.15 + ScrollTrigger, DrawSVG (free) · Lenis smooth scroll · three.js + @react-three/fiber 9 + postprocessing (bloom/noise/vignette, wired up directly in `Scene/Effects.tsx`; don't add drei or @react-three/postprocessing back, they add ~70 kB gzipped) · d3-geo, d3-shape, topojson, us-atlas (the map). Fonts are self-hosted from npm (Inter Tight + JetBrains Mono) via `next/font/local`. It deploys to Vercel with no configuration.
 
 **Status:** `npm run build` passes with no TypeScript or ESLint errors. It's been tested at 1440px, 1280px and 375px, and with reduced motion. All interactions work by keyboard.
 
@@ -22,17 +22,15 @@ Each section has a palette (time of day) and a camera pose. **These three lists 
 
 | # | id | Label | Time of day | What's on screen |
 |---|---|---|---|---|
-| 1 | `hero` | The Bay | Dawn 06:12 | Golden Gate line drawing draws itself; name rises letter by letter with a warm flash; "Open to June 2027 roles" pill; View work / Resume buttons |
-| 2 | `about` | About | Sunrise | Statement whose words brighten as you scroll, with three phrases in colour; portrait (generated landscape + "DG" until a photo is added); spec row; 4 count-up stat cards |
-| – | marquee | – | – | Gradient band of scrolling words that reacts to scroll speed |
+| 1 | `hero` | The Bay | Dawn 06:12 | Golden Gate line drawing draws itself; name and buttons fade up; "Open to June 2027 roles" pill; View work / Resume buttons |
+| 2 | `about` | About | Sunrise | Statement with three phrases in colour; portrait (generated landscape + "DG" until a photo is added); spec row; 4 stat cards |
 | 3 | `now` | Now | Morning | 4 glass cards: Studying / Working (EY) / Looking for (2027 roles) / Community (IIA) |
 | 4 | `experience` | Experience | Midday | **"The climb so far."** Pinned. One chapter per role plus an elevation profile with a climbing hiker (see §5) |
 | 5 | `toolkit` | Field Guide | Afternoon | "The terrain I work in." 4 ITGC domain cards (Access, Change, Operations, Development) that expand to "Typical evidence"; a 5-step "How a control gets tested" line that fills with scroll |
 | 6 | `trail-map` | Trail Map | Golden hour | Pinned California map: route draws, coloured pins drop, trip cards open, Replay button, timeline scrubber, counters |
-| 7 | `gallery` | Gallery | Sunset | Horizontal-scroll photo strip with parallax, tilt and a lightbox |
-| 8 | `skills` | Skills | Dusk | "Kit list": coloured tags in two groups that drift toward the cursor |
-| – | marquee | – | – | Glass band ("Open to 2027 roles · IT audit · …") |
-| 9 | `contact` | Contact | Night (stars + aurora) | "Let's talk." with letters that colour toward the cursor; glass link cards; back to top |
+| 7 | `gallery` | Gallery | Sunset | Horizontal-scroll photo strip with a lightbox |
+| 8 | `skills` | Skills | Dusk | "Kit list": coloured tags in two groups |
+| 9 | `contact` | Contact | Night (stars + aurora) | "Let's talk."; glass link cards; back to top |
 
 ---
 
@@ -40,18 +38,16 @@ Each section has a palette (time of day) and a camera pose. **These three lists 
 
 ```
 app/
-  layout.tsx          fonts, metadata, global systems (SceneRoot, SmoothScroll, Hud, Cursor, Loader)
-  page.tsx            section order (+ the two <Marquee> bands)
-  globals.css         design tokens, .glass, .tint, .tag-c, .legible, cursor glow, etc.
+  layout.tsx          fonts, metadata, global systems (SceneRoot, SmoothScroll, Hud)
+  page.tsx            section order
+  globals.css         design tokens, .glass, .tint, .tag-c, .legible, etc.
 components/
   GoldenGate.tsx      the hero bridge drawing (pure SVG, classes used by the draw timeline)
   Landscape.tsx       procedural colourful landscape art (photo placeholders)
-  Loader.tsx          coloured ASCII loader + counter + split reveal (once per session)
   Hud.tsx             corner labels, time-of-day clock, progress counter, sound toggle
-  Cursor.tsx          dot + ring, cursor glow, 3D tilt for any [data-tilt] element
   SmoothScroll.tsx    Lenis + section tracking + eased progress + writes time-of-day CSS vars
   ui.tsx              SectionLabel, Heading, Arrow, PhotoPlaceholder, Brackets, Crosshairs
-  sections/           Hero, About, Now, Experience, Toolkit, TrailMap, Gallery, Skills, Contact, Marquee
+  sections/           Hero, About, Now, Experience, Toolkit, TrailMap, Gallery, Skills, Contact
   Scene/
     world.ts          terrain height function, lake, tent, fire, trail curve, tree placement, CAMERA POSES
     atmosphere.ts     per-frame lighting state from the palette (linear colours) + shared GLSL noise
@@ -62,16 +58,16 @@ components/
     Sky.tsx           sky dome: gradient, sun, clouds, moon, stars, aurora
     Terrain.tsx       shaded terrain (height/slope colours + contour lines + firelight)
     Water.tsx         alpine lake;  Forest.tsx  instanced pines;  Tent.tsx  tent + campfire + trail + posts
-    Wireframe.tsx     floating iridescent crystals with numeric labels;  Particles.tsx  pollen/fireflies
+    Particles.tsx     pollen/fireflies
     ContourFallback.tsx  2D layered-mountain fallback (follows the same CSS colour vars)
 data/
-  site.ts             ALL copy: name, links, about, now, toolkit, marquee, skills, contact, sections, hues
+  site.ts             ALL copy: name, links, about, now, toolkit, skills, contact, sections, hues
   experience.ts       chapters (education + roles) and the summit
   camping.ts          trips (lat/lng/date/nights/biome/photos), map config, biome colour palettes
 lib/
   timeOfDay.ts        the 9 palettes (dawn → night) + interpolation
-  gsap.ts             plugin registration, scrollStore (shared per-frame state), scrambleText
-  anim.ts             splitReveal, scrubWords, scrambleOnEnter, hairlines, loader handshake
+  gsap.ts             plugin registration, scrollStore (shared per-frame state)
+  anim.ts             reveal (the one entrance animation), hairlines, intro handshake (startIntro/onIntro)
   sections.ts         measured section positions → sectionPhase(progress)
   lenis.ts, loadStore.ts, useIsMobile.ts (incl. shouldUse3D), usePrefersReducedMotion.ts
 public/               resume.pdf (placeholder), og.jpg, audio/ambient.mp3, photos/ (empty)
@@ -88,10 +84,11 @@ public/               resume.pdf (placeholder), og.jpg, audio/ambient.mp3, photo
 - **Animation:** use GSAP only. Don't add Framer Motion. Section setup uses `useGSAP` with `{ scope }`.
 - **Pinned sections:** Experience, Trail Map and Gallery are pinned, with `refreshPriority` 3/2/1. Experience and Trail Map create their pins after mount, so they call `ScrollTrigger.sort()` and then `refresh()`. Keep that pattern if you add another pin.
 - **3D budget:** at most about 60k triangles, at most 1 directional + 1 ambient light (firelight is faked in shaders and sprites), dpr `[1,1.6]` on desktop and `[1,1.25]` on mobile. Bloom is desktop only. Phones (<768px), devices with fewer than 4 cores and no-WebGL browsers get the 2D fallback. You can force either with `?scene=3d` or `?scene=2d`.
-- **Load order:** the loader waits only for fonts (min 1.2s). The 2D landscape paints first; on 3D devices the WebGL chunk is fetched 1.2s after the loader lifts (on idle), and `SceneRoot` fades the canvas in on its first frame, then unmounts the 2D layer. Don't make the loader wait on 3D again.
+- **Load order:** there is no loader screen. The 2D landscape paints first; the hero intro starts once fonts are in (max 600ms). On 3D devices the WebGL chunk is fetched 1.2s after that (on idle), and `SceneRoot` fades the canvas in on its first frame, then unmounts the 2D layer.
+- **Motion is deliberately restrained** (owner's call: keep it professional). Entrances use `reveal()` from `lib/anim.ts` only: a short fade-up, once. No custom cursor, tilt, scramble, per-letter splits, cursor-reactive effects, count-ups or marquees. The Golden Gate draw is the one showpiece; keep it.
 - **Shaders compute in linear colour space** and end with `#include <colorspace_fragment>`, so they look the same with and without the bloom pass. Set colours with `color.setRGB(r,g,b, THREE.SRGBColorSpace)`.
 - **Reduced motion:** Lenis is off, nothing is pinned, everything is drawn or shown immediately, and the 3D scene renders on demand. `scrollStore.reducedMotion` is read when the module loads, on purpose: sections set up before any provider effect runs.
-- **Hero bridge:** `GoldenGate.tsx` is plain SVG. The draw order is set in `Hero.tsx` (the `draw` timeline, which plays when the loader finishes). The hero camera looks up into the dawn sky so the tent isn't in the opening shot.
+- **Hero bridge:** `GoldenGate.tsx` is plain SVG. The draw order is set in `Hero.tsx` (the `draw` timeline, which plays on `onIntro`). The hero camera looks up into the dawn sky so the tent isn't in the opening shot.
 
 ---
 
@@ -164,7 +161,6 @@ npm start              # then check at 1440, 768 and 375 widths
 ```
 - Check `?scene=3d` (WebGL) and `?scene=2d` (fallback).
 - Turn on the OS "Reduce motion" setting and confirm everything is still readable.
-- The loader shows once per browser session, so use a new private window to see it again.
 - Keyboard: Tab through the waypoint buttons, map pins, trip cards (Esc closes), lightbox (arrow keys, Esc) and the domain cards.
 
 ---

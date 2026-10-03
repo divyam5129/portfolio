@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
-import { gsap, scrollStore } from "@/lib/gsap";
+import { reveal } from "@/lib/anim";
 import { hues, site, type Hue } from "@/data/site";
 import { Heading, SectionLabel } from "../ui";
 
@@ -22,29 +22,8 @@ export default function Now() {
 
   useGSAP(
     () => {
-      const reduced = scrollStore.reducedMotion;
-      const cards = gsap.utils.toArray<HTMLElement>(".now-card");
-      gsap.from(cards, {
-        autoAlpha: 0,
-        y: reduced ? 0 : 80,
-        rotateX: reduced ? 0 : -18,
-        transformPerspective: 900,
-        transformOrigin: "50% 100%",
-        stagger: 0.12,
-        duration: 1.1,
-        ease: "power3.out",
-        scrollTrigger: { trigger: ".now-grid", start: "top 85%", once: true },
-      });
-      gsap.from(".now-icon", {
-        scale: 0,
-        rotate: -90,
-        stagger: 0.12,
-        duration: 0.9,
-        delay: 0.3,
-        ease: "back.out(2.2)",
-        scrollTrigger: { trigger: ".now-grid", start: "top 85%", once: true },
-      });
-      gsap.from(".now-intro", { autoAlpha: 0, y: 20, duration: 0.9, scrollTrigger: { trigger: ".now-intro", start: "top 90%", once: true } });
+      reveal(".now-intro", ".now-intro");
+      reveal(".now-card", ".now-grid");
     },
     { scope: root },
   );
@@ -69,7 +48,6 @@ export default function Now() {
               <li
                 key={item.title}
                 className="now-card glass tint flex min-h-[260px] flex-col rounded-3xl p-6"
-                data-tilt="9"
                 style={{ "--a": h.a, "--b": h.b } as React.CSSProperties}
               >
                 <div className="flex items-center justify-between">

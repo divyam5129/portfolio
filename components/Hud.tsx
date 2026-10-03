@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { gsap, scrambleText, scrollStore } from "@/lib/gsap";
+import { gsap, scrollStore } from "@/lib/gsap";
 import { SECTION_EVENT } from "./SmoothScroll";
 import { site } from "@/data/site";
 import { formatClock } from "@/lib/timeOfDay";
@@ -26,11 +26,11 @@ export default function Hud() {
   const [hasAudio, setHasAudio] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
 
-  // Section label scramble
+  // Section label
   useEffect(() => {
     const onSection = (e: Event) => {
       const i = (e as CustomEvent<number>).detail;
-      if (label.current) scrambleText(label.current, sectionLabel(i), { duration: 0.4 });
+      if (label.current) label.current.textContent = sectionLabel(i);
       if (cue.current) gsap.to(cue.current, { autoAlpha: i === 0 ? 1 : 0, duration: 0.4 });
     };
     window.addEventListener(SECTION_EVENT, onSection);
@@ -96,7 +96,6 @@ export default function Hud() {
           ref={wordmark}
           href="#hero"
           className="pointer-events-auto block font-semibold tracking-[-0.02em] text-[15px] leading-none md:text-[17px]"
-          data-cursor="TOP"
         >
           {site.name.toUpperCase()}
         </a>
@@ -127,7 +126,6 @@ export default function Hud() {
           onClick={toggleSound}
           aria-pressed={soundOn}
           className="mono pointer-events-auto absolute bottom-4 left-[var(--gutter)] md:bottom-6"
-          data-cursor={soundOn ? "MUTE" : "PLAY"}
         >
           Sound: <span className={soundOn ? "accent" : "dim"}>{soundOn ? "On" : "Off"}</span>
         </button>

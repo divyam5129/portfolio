@@ -2,8 +2,8 @@
 
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
-import { gsap, SplitText, scrambleText, scrollStore } from "@/lib/gsap";
-import { onLoaderDone } from "@/lib/anim";
+import { gsap, scrollStore } from "@/lib/gsap";
+import { onIntro, startIntro } from "@/lib/anim";
 import { scrollToTarget } from "@/lib/lenis";
 import { site } from "@/data/site";
 import { Arrow } from "../ui";
@@ -21,28 +21,13 @@ export default function Hero() {
   useGSAP(
     () => {
       const reduced = scrollStore.reducedMotion;
-      const split = SplitText.create(name.current!, { type: "chars,lines", mask: "lines", charsClass: "hero-char", aria: "auto" });
-
-      const intro = gsap.timeline({ paused: true });
-      if (reduced) {
-        intro.from([pill.current, kicker.current, name.current, sub.current, links.current], { autoAlpha: 0, duration: 0.6, stagger: 0.08 });
-      } else {
-        intro
-          .from(pill.current, { autoAlpha: 0, y: 16, scale: 0.9, duration: 0.8, ease: "back.out(2)" }, 0)
-          .from(kicker.current, { autoAlpha: 0, y: 10, duration: 0.6 }, 0.1)
-          .from(split.chars, { yPercent: 115, rotate: 6, stagger: 0.035, duration: 1.15, ease: "power4.out" }, 0.05)
-          // a warm flash sweeps across the name as the sun "hits" it
-          .fromTo(
-            split.chars,
-            { color: "#ffd2a8", textShadow: "0 0 28px rgba(255,150,90,0.9)" },
-            { color: "#f3f1ea", textShadow: "0 0 0px rgba(255,150,90,0)", stagger: 0.035, duration: 1.2, ease: "power2.out" },
-            0.35,
-          )
-          .add(() => {
-            if (sub.current) scrambleText(sub.current, site.tagline, { duration: 0.9 });
-          }, 0.4)
-          .from(links.current!.children, { autoAlpha: 0, y: 14, stagger: 0.08, duration: 0.7 }, 0.65);
-      }
+      const intro = gsap.timeline({ paused: true, defaults: { ease: "power2.out" } });
+      intro.from([pill.current, kicker.current, name.current, sub.current, links.current], {
+        autoAlpha: 0,
+        y: reduced ? 0 : 14,
+        duration: 0.9,
+        stagger: 0.1,
+      });
       // the Golden Gate draws itself: water → headlands → towers → deck → cable → suspenders
       const q = (sel: string) => bridge.current!.querySelectorAll(sel);
       const draw = gsap.timeline({ paused: true, defaults: { ease: "power2.inOut" } });
@@ -78,51 +63,29 @@ export default function Hero() {
             gsap.to(q(".gg-towers, .gg-cable"), { opacity: 0.82, duration: 2.2, yoyo: true, repeat: -1, ease: "sine.inOut" });
           });
       }
-      const off = onLoaderDone(() => {
+      const off = onIntro(() => {
         intro.play();
         draw.play();
       });
+      startIntro();
 
-      // letters light up under the cursor
-      const chars = split.chars as HTMLElement[];
-      const enter = (e: Event) => {
-        const el = e.currentTarget as HTMLElement;
-        gsap.fromTo(
-          el,
-          { color: getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#ff8a5b" },
-          { color: "#f3f1ea", duration: 1.4, ease: "power2.out", overwrite: "auto" },
-        );
-      };
-      chars.forEach((c) => c.addEventListener("pointerenter", enter));
-
-      // As scrolling begins the name scales down toward the HUD wordmark (top-left).
+      // As you scroll on, the hero content and bridge ease out.
       if (!reduced) {
-        gsap.to(name.current, {
-          scale: 0.16,
-          x: () => -(name.current!.getBoundingClientRect().left - 16),
-          y: () => -(name.current!.offsetTop - 18),
-          autoAlpha: 0,
-          transformOrigin: "left top",
-          ease: "power2.in",
-          scrollTrigger: { trigger: root.current, start: "top top", end: "bottom 30%", scrub: true, invalidateOnRefresh: true },
-        });
         gsap.to(bridge.current, {
-          yPercent: -18,
+          yPercent: -12,
           autoAlpha: 0,
           ease: "none",
           scrollTrigger: { trigger: root.current, start: "top top", end: "70% top", scrub: true },
         });
-        gsap.to([sub.current, links.current, pill.current, kicker.current], {
+        // explicit start values: the intro's from() leaves these hidden until it plays
+        gsap.fromTo([pill.current, kicker.current, name.current, sub.current, links.current], { autoAlpha: 1 }, {
           autoAlpha: 0,
-          y: -30,
           ease: "none",
-          scrollTrigger: { trigger: root.current, start: "top top", end: "40% top", scrub: true },
+          immediateRender: false,
+          scrollTrigger: { trigger: root.current, start: "top top", end: "50% top", scrub: true },
         });
       }
-      return () => {
-        off();
-        chars.forEach((c) => c.removeEventListener("pointerenter", enter));
-      };
+      return off;
     },
     { scope: root },
   );
@@ -134,25 +97,24 @@ export default function Hero() {
       </div>
       <div className="wrap relative">
         <div ref={pill} className="glass mb-7 inline-flex items-center gap-3 rounded-full px-4 py-2">
-          <span className="pulse relative block h-2 w-2 rounded-full bg-[#4ade80] shadow-[0_0_10px_#4ade80]" aria-hidden />
+          <span className="relative block h-2 w-2 rounded-full bg-[#4ade80] shadow-[0_0_10px_#4ade80]" aria-hidden />
           <span className="mono">{`Open to ${site.availability} roles`}</span>
         </div>
         <p ref={kicker} className="mono legible mb-5 flex items-center gap-2.5">
           <span className="dot" aria-hidden />
           {`// 01 ${site.sections[0].label} · ${site.location}`}
         </p>
-        <h1 id="hero-title" ref={name} tabIndex={-1} className="display legible will-change-transform">
+        <h1 id="hero-title" ref={name} tabIndex={-1} className="display legible">
           {site.name.toUpperCase()}
         </h1>
         <div className="mt-8 grid gap-8 md:grid-cols-12 md:items-end">
-          <p ref={sub} className="mono legible md:col-span-6" aria-label={site.tagline}>
+          <p ref={sub} className="mono legible md:col-span-6">
             {site.tagline}
           </p>
           <div ref={links} className="flex gap-3 md:col-span-6 md:justify-end">
             <a
               href="#experience"
               className="arrow-link mono glass rounded-full px-5 py-3"
-              data-cursor="VIEW"
               onClick={(e) => {
                 e.preventDefault();
                 scrollToTarget("#experience", 1.8);
@@ -166,7 +128,6 @@ export default function Hero() {
               rel="noopener"
               className="arrow-link mono rounded-full px-5 py-3 text-[#0b0d0e]"
               style={{ background: "linear-gradient(120deg, var(--accent), var(--accent-2))" }}
-              data-cursor="OPEN"
             >
               {site.hero.secondaryCta} <Arrow />
             </a>

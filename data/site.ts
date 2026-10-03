@@ -117,12 +117,6 @@ export const site = {
     ],
   },
 
-  // Words for the scrolling marquee bands.
-  marquee: {
-    first: ["Economics", "Technology risk", "SOX", "IT general controls", "Camping", "California", "Audit documentation"],
-    second: ["Open to 2027 roles", "IT audit", "Tech risk", "Internal audit", "Risk management", "San José, CA"],
-  },
-
   skills: {
     work: ["SOX controls", "IT general controls", "Audit documentation", "Excel", "Python", "Economics"],
     outdoors: ["Trip planning", "Navigation", "Backpacking", "Photography"],

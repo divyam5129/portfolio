@@ -1,37 +1,31 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { scrambleOnEnter, splitReveal } from "@/lib/anim";
+import { reveal } from "@/lib/anim";
 import { site } from "@/data/site";
 import Landscape from "./Landscape";
 import type { Biome } from "@/data/camping";
 
-/** `// 0X Name` label with a scramble on enter. */
+/** `// 0X Name` section label. */
 export function SectionLabel({ id, className = "" }: { id: string; className?: string }) {
-  const ref = useRef<HTMLParagraphElement>(null);
   const i = site.sections.findIndex((s) => s.id === id);
   const text = `// ${String(i + 1).padStart(2, "0")} ${site.sections[i]?.label ?? ""}`;
-  useEffect(() => {
-    if (!ref.current) return;
-    const st = scrambleOnEnter(ref.current);
-    return () => st.kill();
-  }, []);
   return (
     <p className={`mono legible flex items-center gap-2.5 ${className}`}>
       <span className="dot" aria-hidden />
-      <span ref={ref} className="text-[var(--fg)] opacity-80">
+      <span className="text-[var(--fg)] opacity-80">
         {text}
       </span>
     </p>
   );
 }
 
-/** Section heading: words rise in on enter; a trailing "." picks up the accent colour. */
+/** Section heading: fades up on enter; a trailing "." picks up the accent colour. */
 export function Heading({ id, children, className = "" }: { id: string; children: string; className?: string }) {
   const ref = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     if (!ref.current) return;
-    const tween = splitReveal(ref.current, { type: "words" });
+    const tween = reveal(ref.current, ref.current);
     return () => {
       tween.scrollTrigger?.kill();
       tween.kill();

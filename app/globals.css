@@ -201,11 +201,6 @@ html.lenis, html.lenis body { height: auto; }
   to { transform: translate3d(-3%, -2%, 0) scale(1.12); }
 }
 
-/* Cursor */
-@media (hover: hover) and (pointer: fine) {
-  html.has-cursor, html.has-cursor * { cursor: none !important; }
-}
-
 .sr-only-focusable:not(:focus):not(:focus-visible) {
   position: absolute;
   width: 1px;
@@ -248,20 +243,6 @@ html.lenis, html.lenis body { height: auto; }
   box-shadow: 0 0 12px var(--accent);
 }
 
-@keyframes pulse-ring {
-  0% { transform: scale(1); opacity: 0.8; }
-  100% { transform: scale(2.8); opacity: 0; }
-}
-.pulse { position: relative; }
-.pulse::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: inherit;
-  animation: pulse-ring 1.8s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
-}
-
 /* hue-tinted card: set --a and --b inline */
 .tint {
   position: relative;
@@ -291,12 +272,6 @@ html.lenis, html.lenis body { height: auto; }
   pointer-events: none;
 }
 
-/* tilt cards get a moving sheen */
-[data-tilt] { transform-style: preserve-3d; will-change: transform; }
-
-/* marquee */
-.marquee { display: flex; width: max-content; will-change: transform; }
-
 /* colour tag */
 .tag-c {
   display: inline-flex;
@@ -323,17 +298,3 @@ html.lenis, html.lenis body { height: auto; }
   box-shadow: 0 0 10px var(--a);
 }
 
-/* cursor glow */
-.cursor-glow {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 520px;
-  height: 520px;
-  margin: -260px 0 0 -260px;
-  border-radius: 999px;
-  pointer-events: none;
-  background: radial-gradient(circle, color-mix(in oklab, var(--accent) 22%, transparent), transparent 62%);
-  mix-blend-mode: screen;
-  z-index: 5;
-}

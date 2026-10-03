@@ -2,8 +2,6 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
-import Loader from "@/components/Loader";
-import Cursor from "@/components/Cursor";
 import Hud from "@/components/Hud";
 import SceneRoot from "@/components/Scene/SceneRoot";
 import { site } from "@/data/site";
@@ -45,19 +43,9 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-// Runs before paint: skip the loader on repeat visits / reduced motion.
-const preLoaderScript = `try{var r=window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(r||sessionStorage.getItem('trail:loader-seen')==='1'){document.documentElement.classList.add('skip-loader')}}catch(e){}`;
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${interTight.variable} ${jetbrains.variable}`} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: preLoaderScript }} />
-        <style>{`html.skip-loader #loader{display:none}`}</style>
-        <noscript>
-          <style>{`#loader{display:none!important}`}</style>
-        </noscript>
-      </head>
       <body>
         <a href="#main" className="sr-only-focusable mono fixed left-4 top-4 z-[110] bg-[var(--bg)] px-3 py-2">
           Skip to content
@@ -66,8 +54,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SmoothScroll />
         <Hud />
         {children}
-        <Cursor />
-        <Loader />
       </body>
     </html>
   );

@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, scrollStore } from "@/lib/gsap";
 import { hues, site, type Hue } from "@/data/site";
+import { reveal } from "@/lib/anim";
 import { Heading, SectionLabel } from "../ui";
 
-/** Small animated glyph per ITGC domain. */
+/** Small glyph per ITGC domain. */
 function DomainGlyph({ id, color }: { id: string; color: string }) {
   const common = { fill: "none", stroke: color, strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
   return (
@@ -15,7 +16,7 @@ function DomainGlyph({ id, color }: { id: string; color: string }) {
       {id === "access" && (
         <g {...common}>
           <rect x="20" y="29" width="24" height="18" rx="3" />
-          <path className="glyph-move" d="M25 29v-6a7 7 0 0 1 14 0v6" />
+          <path d="M25 29v-6a7 7 0 0 1 14 0v6" />
           <circle cx="32" cy="38" r="2.4" fill={color} />
         </g>
       )}
@@ -24,20 +25,20 @@ function DomainGlyph({ id, color }: { id: string; color: string }) {
           <circle cx="20" cy="20" r="4" />
           <circle cx="44" cy="44" r="4" />
           <circle cx="20" cy="44" r="4" />
-          <path className="glyph-draw" d="M20 24v16M24 20h10a10 10 0 0 1 10 10v10" />
+          <path d="M20 24v16M24 20h10a10 10 0 0 1 10 10v10" />
         </g>
       )}
       {id === "operations" && (
         <g {...common}>
           <circle cx="32" cy="32" r="13" />
-          <path className="glyph-spin" d="M32 14v6M32 44v6M14 32h6M44 32h6M19.3 19.3l4.2 4.2M40.5 40.5l4.2 4.2M19.3 44.7l4.2-4.2M40.5 23.5l4.2-4.2" />
+          <path d="M32 14v6M32 44v6M14 32h6M44 32h6M19.3 19.3l4.2 4.2M40.5 40.5l4.2 4.2M19.3 44.7l4.2-4.2M40.5 23.5l4.2-4.2" />
           <circle cx="32" cy="32" r="4" fill={color} />
         </g>
       )}
       {id === "development" && (
         <g {...common}>
           <path d="M24 22 14 32l10 10M40 22l10 10-10 10" />
-          <path className="glyph-draw" d="M35 18 29 46" />
+          <path d="M35 18 29 46" />
         </g>
       )}
     </svg>
@@ -52,21 +53,8 @@ export default function Toolkit() {
   useGSAP(
     () => {
       const reduced = scrollStore.reducedMotion;
-      gsap.from(".domain", {
-        autoAlpha: 0,
-        y: reduced ? 0 : 60,
-        stagger: 0.1,
-        duration: 1,
-        ease: "power3.out",
-        scrollTrigger: { trigger: ".domains", start: "top 85%", once: true },
-      });
-      gsap.from(".tk-intro", { autoAlpha: 0, y: 20, duration: 0.9, scrollTrigger: { trigger: ".tk-intro", start: "top 90%", once: true } });
-
-      if (!reduced) {
-        gsap.to(".glyph-spin", { rotate: 360, transformOrigin: "50% 50%", duration: 12, ease: "none", repeat: -1 });
-        gsap.fromTo(".glyph-move", { y: 0 }, { y: -3, duration: 1.1, yoyo: true, repeat: -1, ease: "sine.inOut" });
-        gsap.fromTo(".glyph-draw", { drawSVG: "0%" }, { drawSVG: "100%", duration: 1.6, repeat: -1, repeatDelay: 1.2, ease: "power2.inOut" });
-      }
+      reveal(".tk-intro", ".tk-intro");
+      reveal(".domain", ".domains");
 
       // process: the line fills and each step lights as you scroll past
       const steps = gsap.utils.toArray<HTMLElement>(".step");
@@ -120,8 +108,6 @@ export default function Toolkit() {
                   onClick={() => setOpen(isOpen ? null : d.id)}
                   aria-expanded={isOpen}
                   aria-controls={`dom-${d.id}`}
-                  data-tilt="8"
-                  data-cursor={isOpen ? "CLOSE" : "OPEN"}
                   className="glass tint flex h-full w-full flex-col rounded-3xl p-6 text-left"
                   style={{ "--a": h.a, "--b": h.b } as React.CSSProperties}
                 >

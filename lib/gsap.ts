@@ -3,22 +3,20 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
-import { SplitText } from "gsap/SplitText";
-import { Flip } from "gsap/Flip";
 import { paletteAt, type Palette } from "./timeOfDay";
 
 let registered = false;
 
 export function registerGsap() {
   if (registered || typeof window === "undefined") return;
-  gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin, SplitText, Flip);
+  gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin);
   gsap.defaults({ ease: "power3.out", duration: 0.8 });
   registered = true;
 }
 
 registerGsap();
 
-export { gsap, ScrollTrigger, DrawSVGPlugin, SplitText, Flip };
+export { gsap, ScrollTrigger, DrawSVGPlugin };
 
 /**
  * Per-frame values shared between DOM and the 3D scene.
@@ -46,36 +44,3 @@ export const scrollStore = {
   reducedMotion:
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
 };
-
-/** Scramble recipe (§7.1): random glyphs resolving left → right over ~400ms. */
-const GLYPHS = "!<>-_\\/[]{}—=+*^?#";
-
-export function scrambleText(
-  el: HTMLElement,
-  finalText: string,
-  { duration = 0.4, delay = 0 }: { duration?: number; delay?: number } = {},
-) {
-  if (scrollStore.reducedMotion) {
-    el.textContent = finalText;
-    return gsap.to({}, { duration: 0 });
-  }
-  const state = { p: 0 };
-  return gsap.to(state, {
-    p: 1,
-    duration,
-    delay,
-    ease: "none",
-    onUpdate() {
-      const resolved = Math.floor(state.p * finalText.length);
-      let out = finalText.slice(0, resolved);
-      for (let i = resolved; i < finalText.length; i++) {
-        const ch = finalText[i];
-        out += ch === " " ? " " : GLYPHS[(Math.random() * GLYPHS.length) | 0];
-      }
-      el.textContent = out;
-    },
-    onComplete() {
-      el.textContent = finalText;
-    },
-  });
-}

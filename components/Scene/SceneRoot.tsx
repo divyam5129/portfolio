@@ -3,14 +3,14 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { shouldUse3D, MOBILE_BREAKPOINT } from "@/lib/useIsMobile";
-import { onLoaderDone } from "@/lib/anim";
+import { onIntro } from "@/lib/anim";
 import { loadState, subscribeLoad } from "@/lib/loadStore";
 import { scrollStore } from "@/lib/gsap";
 import ContourFallback from "./ContourFallback";
 
 const SceneCanvas = dynamic(() => import("./SceneCanvas"), { ssr: false });
 
-/** After the loader lifts, give the hero draw this long before fetching the 3D scene. */
+/** Give the hero draw this long before fetching the 3D scene. */
 const SCENE_DELAY_MS = 1200;
 const FADE_MS = 1400;
 
@@ -31,7 +31,7 @@ export default function SceneRoot() {
     setMobile(window.innerWidth < MOBILE_BREAKPOINT);
     let timer = 0;
     let idle = 0;
-    const off = onLoaderDone(() => {
+    const off = onIntro(() => {
       timer = window.setTimeout(() => {
         const go = () => setWant3D(true);
         idle = window.requestIdleCallback ? window.requestIdleCallback(go, { timeout: 800 }) : window.setTimeout(go, 0);

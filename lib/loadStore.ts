@@ -1,14 +1,12 @@
 "use client";
 
 /**
- * Tiny load-progress store. Fonts report when ready (the loader waits on
- * them); the 3D scene reports its first rendered frame so SceneRoot can fade
- * it in. The loader does not wait for 3D: it streams in after the hero.
+ * Tiny load store: the 3D scene reports its first rendered frame here so
+ * SceneRoot can fade it in over the 2D layer.
  */
 type Listener = () => void;
 
 export const loadState = {
-  fonts: false,
   sceneFrame: false,
 };
 
@@ -24,9 +22,4 @@ export function subscribeLoad(l: Listener) {
   return () => {
     listeners.delete(l);
   };
-}
-
-/** 0–100 target the counter animates toward. */
-export function loadTarget() {
-  return loadState.fonts ? 100 : 40;
 }

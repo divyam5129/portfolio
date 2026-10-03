@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, scrollStore } from "@/lib/gsap";
 import { biomePalette, formatTripDate, shortName, tripsChronological, type Biome } from "@/data/camping";
+import { reveal } from "@/lib/anim";
 import { PhotoPlaceholder, SectionLabel } from "../ui";
 
 type Shot = { src: string; alt: string; caption: string; seed: string; biome?: Biome; label: string };
@@ -25,13 +26,11 @@ export default function Gallery() {
 
   useGSAP(
     () => {
-      const frames = gsap.utils.toArray<HTMLElement>("[data-frame]");
-      if (scrollStore.reducedMotion) {
-        gsap.from(frames, { autoAlpha: 0, duration: 0.6, stagger: 0.05, scrollTrigger: { trigger: root.current, start: "top 70%", once: true } });
-        return;
-      }
+      reveal("[data-frame]", root.current!, { stagger: 0.04 });
+      if (scrollStore.reducedMotion) return;
+      // the strip scrolls sideways while the section is pinned
       const distance = () => Math.max(0, track.current!.scrollWidth - window.innerWidth);
-      const scroller = gsap.to(track.current, {
+      gsap.to(track.current, {
         x: () => -distance(),
         ease: "none",
         scrollTrigger: {
@@ -43,30 +42,6 @@ export default function Gallery() {
           refreshPriority: 1,
           invalidateOnRefresh: true,
         },
-      });
-
-      frames.forEach((frame) => {
-        const inner = frame.querySelector("[data-parallax]");
-        gsap.fromTo(
-          frame.querySelector("[data-clip]"),
-          { clipPath: "inset(0% 100% 0% 0%)" },
-          {
-            clipPath: "inset(0% 0% 0% 0%)",
-            ease: "power2.inOut",
-            scrollTrigger: { trigger: frame, containerAnimation: scroller, start: "left 95%", end: "left 55%", scrub: true },
-          },
-        );
-        if (inner) {
-          gsap.fromTo(
-            inner,
-            { xPercent: 8 },
-            {
-              xPercent: -8,
-              ease: "none",
-              scrollTrigger: { trigger: frame, containerAnimation: scroller, start: "left right", end: "right left", scrub: true },
-            },
-          );
-        }
       });
     },
     { scope: root },
@@ -105,15 +80,13 @@ export default function Gallery() {
               <button
                 type="button"
                 onClick={(e) => open(i, e.currentTarget)}
-                data-cursor="VIEW"
                 aria-label={`Open photo: ${s.alt}`}
                 className="crosshair relative block rounded-[18px] border-white/15 shadow-[0_40px_80px_-40px_rgba(0,0,0,0.8)]"
-                data-tilt="7"
               >
                 <span className="ch tl" aria-hidden>+</span>
                 <span className="ch br" aria-hidden>+</span>
-                <span data-clip className="relative block aspect-[4/5] w-[68vw] overflow-hidden rounded-[18px] md:w-[min(28vw,420px)]">
-                  <span data-parallax className="absolute inset-y-0 -left-[10%] -right-[10%] block">
+                <span className="relative block aspect-[4/5] w-[68vw] overflow-hidden rounded-[18px] md:w-[min(28vw,420px)]">
+                  <span className="absolute inset-0 block">
                     {s.src ? (
                       <Image src={s.src} alt={s.alt} fill sizes="(max-width: 768px) 70vw, 30vw" className="object-cover" />
                     ) : (

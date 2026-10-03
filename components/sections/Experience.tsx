@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
-import { gsap, ScrollTrigger, SplitText, scrollStore } from "@/lib/gsap";
+import { gsap, ScrollTrigger, scrollStore } from "@/lib/gsap";
+import { reveal } from "@/lib/anim";
 import { getLenis, scrollToTarget } from "@/lib/lenis";
 import { chapters, summit } from "@/data/experience";
 import { display, hues } from "@/data/site";
@@ -82,26 +83,11 @@ export default function Experience() {
     const inn = els[next];
     if (out) {
       gsap.killTweensOf(out);
-      gsap.to(out, { autoAlpha: 0, y: -50 * dir, duration: 0.45, ease: "power2.in" });
+      gsap.to(out, { autoAlpha: 0, duration: 0.3, ease: "power1.out" });
     }
     if (!inn) return;
     gsap.killTweensOf(inn);
-    gsap.set(inn, { autoAlpha: 1, y: 0 });
-    const num = inn.querySelector(".ch-num");
-    const title = inn.querySelector<HTMLElement>(".ch-title");
-    const meta = inn.querySelectorAll(".ch-meta");
-    const card = inn.querySelector(".ch-card");
-    const items = inn.querySelectorAll(".ch-item");
-    const tl = gsap.timeline();
-    if (num) tl.fromTo(num, { yPercent: 60 * dir, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.9, ease: "power4.out" }, 0);
-    if (title) {
-      const split = (title as HTMLElement & { _split?: SplitText })._split ?? SplitText.create(title, { type: "words", mask: "words" });
-      (title as HTMLElement & { _split?: SplitText })._split = split;
-      tl.fromTo(split.words, { yPercent: 110 }, { yPercent: 0, stagger: 0.05, duration: 0.85, ease: "power4.out" }, 0.08);
-    }
-    tl.fromTo(meta, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, stagger: 0.06, duration: 0.6 }, 0.15);
-    if (card) tl.fromTo(card, { autoAlpha: 0, x: 70 * dir, rotateY: -8 * dir, transformPerspective: 1000 }, { autoAlpha: 1, x: 0, rotateY: 0, duration: 0.9, ease: "power3.out" }, 0.1);
-    tl.fromTo(items, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, stagger: 0.05, duration: 0.5 }, 0.35);
+    gsap.fromTo(inn, { autoAlpha: 0, y: 12 * dir }, { autoAlpha: 1, y: 0, duration: 0.5, delay: 0.1, ease: "power2.out" });
   }, []);
 
   useGSAP(
@@ -111,17 +97,7 @@ export default function Experience() {
 
       if (mode === "stacked") {
         scrollStore.experience = 1;
-        if (scrollStore.reducedMotion) return;
-        chaptersEls.forEach((el) => {
-          gsap.from(el.querySelectorAll(".ch-num, .ch-title, .ch-meta, .ch-card"), {
-            autoAlpha: 0,
-            y: 40,
-            stagger: 0.08,
-            duration: 0.9,
-            ease: "power3.out",
-            scrollTrigger: { trigger: el, start: "top 80%", once: true },
-          });
-        });
+        chaptersEls.forEach((el) => reveal(el.querySelectorAll(".ch-num, .ch-title, .ch-meta, .ch-card"), el));
         return;
       }
 
@@ -301,7 +277,6 @@ export default function Experience() {
                   <div
                     key={p.title}
                     className="ch-item glass tint flex items-center justify-between rounded-3xl p-6 md:p-7"
-                    data-tilt="6"
                     style={{ "--a": h.a, "--b": h.b } as React.CSSProperties}
                   >
                     <div>
@@ -362,7 +337,6 @@ export default function Experience() {
                   style={{ left: `${m.x * 100}%`, top: `${m.y * 100}%` }}
                   aria-label={`Go to waypoint ${i + 1}: ${w.label}`}
                   aria-current={current === i ? "step" : undefined}
-                  data-cursor="GO"
                 >
                   <span
                     className="block h-4 w-4 rounded-full border-2 transition-all duration-500"

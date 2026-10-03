@@ -1,76 +1,48 @@
 "use client";
 
-import { gsap, ScrollTrigger, SplitText, scrollStore, scrambleText } from "./gsap";
+import { gsap, scrollStore } from "./gsap";
 
-/* ---------- loader handshake ---------- */
-let loaderDone = false;
-const LOADER_EVENT = "trail:loader-done";
+/* ---------- intro handshake ---------- */
+let introReady = false;
+const INTRO_EVENT = "trail:intro-ready";
 
-export function markLoaderDone() {
-  loaderDone = true;
-  window.dispatchEvent(new Event(LOADER_EVENT));
+/** Fire once fonts are in (capped, so a slow font never holds up the page). */
+export function startIntro() {
+  if (introReady) return;
+  const go = () => {
+    if (introReady) return;
+    introReady = true;
+    window.dispatchEvent(new Event(INTRO_EVENT));
+  };
+  document.fonts?.ready.then(go);
+  window.setTimeout(go, 600);
 }
 
-export function onLoaderDone(cb: () => void) {
-  if (loaderDone) {
+/** Run `cb` when the hero intro should play (immediately if it already has). */
+export function onIntro(cb: () => void) {
+  if (introReady) {
     cb();
     return () => {};
   }
   const handler = () => cb();
-  window.addEventListener(LOADER_EVENT, handler, { once: true });
-  return () => window.removeEventListener(LOADER_EVENT, handler);
+  window.addEventListener(INTRO_EVENT, handler, { once: true });
+  return () => window.removeEventListener(INTRO_EVENT, handler);
 }
 
-/* ---------- §7.2 split reveal ---------- */
-export function splitReveal(el: HTMLElement, opts: { type?: "chars" | "words" | "lines"; trigger?: Element } = {}) {
-  const type = opts.type ?? "words";
-  if (scrollStore.reducedMotion) {
-    return gsap.from(el, {
-      autoAlpha: 0,
-      y: 12,
-      duration: 0.6,
-      scrollTrigger: { trigger: opts.trigger ?? el, start: "top 85%", once: true },
-    });
-  }
-  const split = SplitText.create(el, { type: `lines,${type}`, mask: "lines", aria: "auto" });
-  const targets = type === "chars" ? split.chars : type === "words" ? split.words : split.lines;
+/* ---------- the one entrance used site-wide ---------- */
+/** Quiet fade-up as `trigger` scrolls into view. Opacity only under reduced motion. */
+export function reveal(targets: gsap.TweenTarget, trigger: Element | string, { stagger = 0.06 }: { stagger?: number } = {}) {
   return gsap.from(targets, {
-    yPercent: 110,
-    stagger: 0.03,
-    duration: 1,
-    ease: "power4.out",
-    scrollTrigger: { trigger: opts.trigger ?? el, start: "top 85%", once: true },
+    autoAlpha: 0,
+    y: scrollStore.reducedMotion ? 0 : 16,
+    duration: 0.7,
+    stagger,
+    ease: "power2.out",
+    scrollTrigger: { trigger, start: "top 88%", once: true },
   });
 }
 
-/* ---------- §7.1 scramble on enter ---------- */
-export function scrambleOnEnter(el: HTMLElement) {
-  const text = el.textContent ?? "";
-  return ScrollTrigger.create({
-    trigger: el,
-    start: "top 90%",
-    once: true,
-    onEnter: () => scrambleText(el, text, { duration: 0.5 }),
-  });
-}
-
-/* ---------- §7.3 scrub word-by-word ---------- */
-export function scrubWords(el: HTMLElement, trigger: Element) {
-  if (scrollStore.reducedMotion) return null;
-  const split = SplitText.create(el, { type: "words", aria: "auto" });
-  return gsap.fromTo(
-    split.words,
-    { opacity: 0.2 },
-    {
-      opacity: 1,
-      ease: "none",
-      stagger: 0.1,
-      scrollTrigger: { trigger, start: "top 75%", end: "bottom 45%", scrub: true },
-    },
-  );
-}
-
-/* ---------- §7.4 hairline draw ---------- */
+/* ---------- hairline draw ---------- */
 export function hairlines(scope: Element) {
   const lines = scope.querySelectorAll<HTMLElement>("[data-hairline]");
   lines.forEach((line) => {
