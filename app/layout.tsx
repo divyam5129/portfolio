@@ -46,7 +46,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${interTight.variable} ${jetbrains.variable}`} suppressHydrationWarning>
-      <body>
+      <body suppressHydrationWarning>
         <a href="#main" className="sr-only-focusable mono fixed left-4 top-4 z-[110] bg-[var(--bg)] px-3 py-2">
           Skip to content
         </a>
