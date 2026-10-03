@@ -61,6 +61,11 @@ export default function Hero() {
               );
             });
             gsap.to(q(".gg-towers, .gg-cable"), { opacity: 0.82, duration: 2.2, yoyo: true, repeat: -1, ease: "sine.inOut" });
+            // ships: a freighter heads out under the bridge, a sailboat tacks back in
+            gsap.set(q(".gg-ship, .gg-boat"), { opacity: 1 });
+            gsap.fromTo(q(".gg-ship"), { x: -220 }, { x: 1660, duration: 70, ease: "none", repeat: -1 });
+            gsap.fromTo(q(".gg-boat"), { x: 1620 }, { x: -80, duration: 48, ease: "none", repeat: -1, delay: 4 });
+            gsap.to(q(".gg-boat"), { y: -3, rotate: 2, transformOrigin: "50% 100%", duration: 1.8, yoyo: true, repeat: -1, ease: "sine.inOut" });
           });
       }
       const off = onIntro(() => {

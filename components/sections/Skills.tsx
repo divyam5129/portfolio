@@ -6,6 +6,7 @@ import { gsap } from "@/lib/gsap";
 import { hairlines, reveal } from "@/lib/anim";
 import { hues, site } from "@/data/site";
 import { SectionLabel } from "../ui";
+import { PaintedLadies } from "../BayScenes";
 
 export default function Skills() {
   const root = useRef<HTMLElement>(null);
@@ -24,7 +25,7 @@ export default function Skills() {
   ];
 
   return (
-    <section id="skills" ref={root} aria-labelledby="skills-title" className="relative py-[22vh]">
+    <section id="skills" ref={root} aria-labelledby="skills-title" className="relative pt-[22vh]">
       <div className="wrap">
         <SectionLabel id="skills" />
         <h2 id="skills-title" className="h2 legible mt-4">
@@ -48,6 +49,7 @@ export default function Skills() {
           ))}
         </div>
       </div>
+      <PaintedLadies className="mt-20 block w-full" />
     </section>
   );
 }

@@ -5,6 +5,7 @@ import { useGSAP } from "@gsap/react";
 import { reveal } from "@/lib/anim";
 import { hues, site, type Hue } from "@/data/site";
 import { Heading, SectionLabel } from "../ui";
+import { CableCar } from "../BayScenes";
 
 const ICONS: React.ReactNode[] = [
   // book
@@ -31,7 +32,7 @@ export default function Now() {
   const { now } = site;
 
   return (
-    <section id="now" ref={root} aria-labelledby="now-title" className="relative py-[16vh]">
+    <section id="now" ref={root} aria-labelledby="now-title" className="relative pt-[16vh]">
       <div className="wrap">
         <div className="grid gap-6 md:grid-cols-12 md:items-end">
           <div className="md:col-span-7">
@@ -71,6 +72,7 @@ export default function Now() {
           })}
         </ul>
       </div>
+      <CableCar className="mt-20 block w-full" />
     </section>
   );
 }

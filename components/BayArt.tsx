@@ -11,24 +11,24 @@ import { drawLineArt, seeded } from "@/lib/anim";
  * on once drawn; each piece adds a little ambient life of its own.
  */
 
-const LINE = "#f3f1ea";
+export const LINE = "#f3f1ea";
 
-type Box = { x: number; w: number; top: number };
+export type Box = { x: number; w: number; top: number };
 
 /** Lit-window grid for a rectangular building. */
-function windows(b: Box, ground: number, rnd: () => number, gapX = 14, gapY = 18) {
+export function windows(b: Box, ground: number, rnd: () => number, gapX = 14, gapY = 18) {
   const out: { x: number; y: number }[] = [];
   for (let y = b.top + 14; y < ground - 18; y += gapY)
     for (let x = b.x + 8; x < b.x + b.w - 10; x += gapX) if (rnd() > 0.55) out.push({ x, y });
   return out;
 }
 
-function boxPath(b: Box, ground: number) {
+export function boxPath(b: Box, ground: number) {
   return `M${b.x},${ground} L${b.x},${b.top} L${b.x + b.w},${b.top} L${b.x + b.w},${ground}`;
 }
 
 /** Switch windows on in a random order, then let a few flicker now and then. */
-function lightWindows(svg: SVGSVGElement, max = 0.85) {
+export function lightWindows(svg: SVGSVGElement, max = 0.85) {
   const wins = gsap.utils.toArray<SVGElement>(svg.querySelectorAll(".la-win"));
   if (!wins.length) return;
   if (scrollStore.reducedMotion) {

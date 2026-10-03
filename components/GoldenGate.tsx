@@ -125,6 +125,20 @@ const GoldenGate = forwardRef<SVGSVGElement, { className?: string }>(function Go
         ))}
       </g>
 
+      {/* a container ship far out, and a sailboat closer in (they pass under the bridge once it's drawn) */}
+      <g className="gg-ship" opacity="0" stroke="#ffffff" strokeOpacity="0.45" strokeWidth="1.2">
+        <path d="M0,572 L118,572 L111,580 L5,580 Z" fill="#0b0d18" />
+        <path d="M9,572 L9,564 L29,564 L29,572 M31,572 L31,561 L51,561 L51,572 M53,572 L53,565 L73,565 L73,572 M75,572 L75,562 L95,562 L95,572" strokeOpacity="0.5" />
+        <path d="M100,572 L100,556 L111,556 L111,572" />
+        <circle cx="105" cy="553" r="1.4" fill="#fff4d6" stroke="none" />
+      </g>
+      <g className="gg-boat" opacity="0" stroke="#ffffff" strokeOpacity="0.85" strokeWidth="1.3">
+        <path d="M0,640 L46,640 L38,650 L8,650 Z" fill="#0b0d18" />
+        <path d="M22,640 L22,584" />
+        <path d="M24,588 L24,636 L50,636 Z" fill="#ffffff" fillOpacity="0.12" />
+        <path d="M20,592 L4,632 L20,632 Z" fill="#ffffff" fillOpacity="0.08" strokeOpacity="0.6" />
+      </g>
+
       {/* headlands: Marin (left) and the city side (right) */}
       <path
         className="gg-land gg-fillable"
