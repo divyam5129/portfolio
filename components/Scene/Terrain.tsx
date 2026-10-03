@@ -3,7 +3,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { heightAt, LAKE, MAX_HEIGHT, TERRAIN_SEGMENTS, TERRAIN_SIZE, firePosition } from "./world";
+import { heightAt, LAKE, MAX_HEIGHT, TERRAIN_SEGMENTS, TERRAIN_SIZE } from "./world";
 import { atmo, glslNoise } from "./atmosphere";
 
 const vertex = /* glsl */ `
@@ -29,9 +29,6 @@ const fragment = /* glsl */ `
   uniform vec3 uAmbient;
   uniform vec3 uSky;
   uniform vec3 uLineTint;
-  uniform vec3 uFire;
-  uniform vec3 uFirePos;
-  uniform float uGlow;
   uniform float uDensity;
   uniform float uMaxH;
   uniform float uLakeY;
@@ -86,10 +83,6 @@ const fragment = /* glsl */ `
     float major = contour(hn * uDensity / 5.0, 1.5);
     col = mix(col, uLineTint, minor * 0.16 + major * 0.28);
 
-    // warm pool of firelight around the camp
-    float dFire = length(vWorld.xz - uFirePos.xz);
-    col += uFire * uGlow * 0.9 * exp(-dFire * 0.75);
-
     gl_FragColor = vec4(col, 1.0);
     #include <fog_fragment>
     #include <colorspace_fragment>
@@ -143,9 +136,6 @@ export default function Terrain({
           uAmbient: { value: new THREE.Color() },
           uSky: { value: new THREE.Color() },
           uLineTint: { value: new THREE.Color() },
-          uFire: { value: new THREE.Color("#ff7a2e") },
-          uFirePos: { value: firePosition() },
-          uGlow: { value: 0 },
           uDensity: { value: 16 },
           uMaxH: { value: MAX_HEIGHT },
           uLakeY: { value: waterY },
@@ -167,7 +157,6 @@ export default function Terrain({
     u.uSky.value.copy(atmo.skyMid);
     tint.copy(atmo.horizon).lerp(atmo.sun, 0.5).multiplyScalar(1.15);
     u.uLineTint.value.copy(tint);
-    u.uGlow.value = atmo.glow;
   });
 
   return (

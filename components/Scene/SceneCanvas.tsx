@@ -7,7 +7,6 @@ import Terrain from "./Terrain";
 import Water from "./Water";
 import Forest from "./Forest";
 import Sky from "./Sky";
-import { Campfire, Tent, Trail } from "./Tent";
 import Particles from "./Particles";
 import CameraRig from "./CameraRig";
 import Effects from "./Effects";
@@ -81,9 +80,6 @@ export default function SceneCanvas({ mobile }: { mobile: boolean }) {
       <Terrain segments={mobile ? 100 : undefined} />
       <Water />
       <Forest count={mobile ? 240 : 460} />
-      <Trail />
-      <Tent />
-      <Campfire />
       <Particles count={mobile ? 300 : 700} />
       <LoadReporter />
       {reduced && <DemandDriver />}

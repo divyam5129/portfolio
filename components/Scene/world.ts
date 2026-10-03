@@ -63,14 +63,14 @@ function fbm(x: number, y: number) {
 
 /* ---------- world layout ---------- */
 export const TERRAIN_SIZE = 84;
-// 136² × 2 = 36,992 triangles; trees, tent, fire and crystals keep the total under 60k
+// 136² × 2 = 36,992 triangles; trees and water keep the total under 60k
 export const TERRAIN_SEGMENTS = 136;
 export const MAX_HEIGHT = 14;
 
-/** Where the tent sits (x, z). Height is solved from the terrain. */
-export const TENT_XZ = new THREE.Vector2(0, -2);
+/** The hilltop the camera frames (x, z). Height is solved from the terrain. */
+export const KNOLL_XZ = new THREE.Vector2(0, -2);
 
-/** Alpine lake in the valley behind the tent. */
+/** Alpine lake in the valley behind the hilltop. */
 export const LAKE = { x: -18, z: -12, r: 7, y: 0.15 };
 
 function rawHeight(x: number, z: number) {
@@ -86,7 +86,7 @@ function rawHeight(x: number, z: number) {
 
 let _summit: number | null = null;
 function summitHeight() {
-  if (_summit === null) _summit = rawHeight(TENT_XZ.x, TENT_XZ.y) + 1.4;
+  if (_summit === null) _summit = rawHeight(KNOLL_XZ.x, KNOLL_XZ.y) + 1.4;
   return _summit;
 }
 
@@ -104,28 +104,19 @@ export function heightAt(x: number, z: number) {
     h = THREE.MathUtils.lerp(h, bed, inside);
   }
 
-  // tent: flat pad easing into a broad rounded knoll
-  const d = Math.hypot(x - TENT_XZ.x, z - TENT_XZ.y);
+  // hilltop: flat pad easing into a broad rounded knoll
+  const d = Math.hypot(x - KNOLL_XZ.x, z - KNOLL_XZ.y);
   const knoll = 1 - THREE.MathUtils.smoothstep(d, 1.6, 7.5);
   const lifted = Math.max(h, THREE.MathUtils.lerp(h, summitHeight(), knoll));
   const pad = THREE.MathUtils.smoothstep(d, 1.2, 3.4);
   return THREE.MathUtils.lerp(summitHeight(), lifted, pad);
 }
 
-export function tentPosition() {
-  return new THREE.Vector3(TENT_XZ.x, heightAt(TENT_XZ.x, TENT_XZ.y), TENT_XZ.y);
+export function knollPosition() {
+  return new THREE.Vector3(KNOLL_XZ.x, heightAt(KNOLL_XZ.x, KNOLL_XZ.y), KNOLL_XZ.y);
 }
 
-/** Tent faces this way (radians about Y). The campfire sits in front of the door. */
-export const TENT_YAW = -0.6;
-export function firePosition() {
-  const t = tentPosition();
-  const x = t.x + Math.sin(TENT_YAW) * 2.3;
-  const z = t.z + Math.cos(TENT_YAW) * 2.3;
-  return new THREE.Vector3(x, heightAt(x, z), z);
-}
-
-/* ---------- the trail: trailhead in the valley → tent on the ridge ---------- */
+/* ---------- camera path for the Experience section: valley → ridge (not drawn) ---------- */
 const TRAIL_XZ: [number, number][] = [
   [18, 26],
   [12, 21],
@@ -147,8 +138,6 @@ export function trailCurve() {
   return _trail;
 }
 
-/** Trail parameter (0–1) of each glowing post; one per flowchart marker before the fork. */
-export const POST_T = [0.06, 0.27, 0.48, 0.69, 0.88];
 
 /* ---------- trees ---------- */
 export type TreeSpot = { x: number; y: number; z: number; s: number; tint: number };
@@ -174,10 +163,10 @@ export function treeSpots(max = 520): TreeSpot[] {
     const slope = Math.abs(heightAt(x + 0.6, z) - h) + Math.abs(heightAt(x, z + 0.6) - h);
     if (slope > 0.9) continue;
     if (Math.hypot(x - LAKE.x, z - LAKE.z) < LAKE.r + 1.2) continue;
-    if (Math.hypot(x - TENT_XZ.x, z - TENT_XZ.y) < 5.5) continue;
+    if (Math.hypot(x - KNOLL_XZ.x, z - KNOLL_XZ.y) < 5.5) continue;
     if (poses.some((p) => Math.hypot(p.x - x, p.z - z) < 7.5 && p.y < h + 6)) continue;
-    // the slope between the hero camera and the tent stays open
-    if (x > 0 && z > -3 && x < 12 && z < 12 && Math.hypot(x - TENT_XZ.x, z - TENT_XZ.y) < 13) continue;
+    // the slope between the hero camera and the hilltop stays open
+    if (x > 0 && z > -3 && x < 12 && z < 12 && Math.hypot(x - KNOLL_XZ.x, z - KNOLL_XZ.y) < 13) continue;
     let nearTrail = false;
     for (let i = 0; i < trail.length; i += 2) {
       if (Math.hypot(trail[i].x - x, trail[i].z - z) < 1.6) {
@@ -194,40 +183,40 @@ export function treeSpots(max = 520): TreeSpot[] {
 
 /* ---------- camera poses, one per section (same order as site.sections) ---------- */
 export function cameraPoses() {
-  const tent = tentPosition();
+  const knoll = knollPosition();
   const trail = trailCurve();
   const head = trail.getPointAt(0);
   const lake = new THREE.Vector3(LAKE.x, LAKE.y, LAKE.z);
   const pos = [
     // hero: on the ridge, looking up into the sunrise sky (the Golden Gate drawing sits on top)
-    new THREE.Vector3(tent.x + 6.5, tent.y + 3.2, tent.z + 9.5),
+    new THREE.Vector3(knoll.x + 6.5, knoll.y + 3.2, knoll.z + 9.5),
     // about: dolly forward + lower toward the ridge
-    new THREE.Vector3(tent.x + 5.6, tent.y + 1.9, tent.z + 7.6),
+    new THREE.Vector3(knoll.x + 5.6, knoll.y + 1.9, knoll.z + 7.6),
     // now: above the lake shore, looking across the water to the peaks
     new THREE.Vector3(lake.x + 9, lake.y + 6.2, lake.z + 14),
     // experience: down at the trailhead (rig blends onto the trail itself)
     new THREE.Vector3(head.x + 2.5, head.y + 2.4, head.z + 3.5),
     // field guide: rise over the ridge toward the high peaks
-    new THREE.Vector3(9, tent.y + 5.5, 1),
+    new THREE.Vector3(9, knoll.y + 5.5, 1),
     // trail map: near top-down (the 2D map covers it)
     new THREE.Vector3(6, 46, 12.5),
     // gallery: low, tilted up toward the sunset sky
-    new THREE.Vector3(4, tent.y + 1.4, 14),
+    new THREE.Vector3(4, knoll.y + 1.4, 14),
     // skills: drifting along the ridge at dusk
-    new THREE.Vector3(-9, tent.y + 4, 9),
-    // contact: pull back, wide on the lit tent and campfire with the trail leading in
-    new THREE.Vector3(tent.x + 13, tent.y + 7.5, tent.z + 16),
+    new THREE.Vector3(-9, knoll.y + 4, 9),
+    // contact: pull back, wide over the hilltop and lake at night
+    new THREE.Vector3(knoll.x + 13, knoll.y + 7.5, knoll.z + 16),
   ];
   const look = [
-    tent.clone().add(new THREE.Vector3(-16, 15, -14)),
-    tent.clone().add(new THREE.Vector3(-1.5, 0.4, -2)),
+    knoll.clone().add(new THREE.Vector3(-16, 15, -14)),
+    knoll.clone().add(new THREE.Vector3(-1.5, 0.4, -2)),
     lake.clone().add(new THREE.Vector3(-3, 2.2, -12)),
     trail.getPointAt(0.08).add(new THREE.Vector3(0, 0.6, 0)),
     new THREE.Vector3(-8, 9, -32),
     new THREE.Vector3(6, 0, 11),
-    new THREE.Vector3(-2, tent.y + 10, -30),
-    tent.clone().add(new THREE.Vector3(6, 0, -6)),
-    tent.clone().add(new THREE.Vector3(-1.5, 2.6, -3)),
+    new THREE.Vector3(-2, knoll.y + 10, -30),
+    knoll.clone().add(new THREE.Vector3(6, 0, -6)),
+    knoll.clone().add(new THREE.Vector3(-1.5, 2.6, -3)),
   ];
   return { pos, look };
 }

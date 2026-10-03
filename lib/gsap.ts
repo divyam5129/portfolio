@@ -34,7 +34,7 @@ export const scrollStore = {
   pointer: { x: 0, y: 0 },
   /** 0..1 how much the 2D map has taken over (terrain fades) */
   mapBlend: 0,
-  /** 0..1 experience progress (lights trail posts) */
+  /** 0..1 experience progress (drives the camera along its path) */
   experience: 0,
   /** interpolated time-of-day palette for the current scroll position */
   palette: paletteAt(0) as Palette,

@@ -20,7 +20,7 @@ export type Palette = {
   aurora: number; // 0..1
   accent: RGB; // UI accent
   accent2: RGB; // UI secondary accent
-  glow: number; // tent + campfire glow 0..1
+  glow: number; // night-ness 0..1 (fireflies)
 };
 
 const hex = (h: string): RGB => {

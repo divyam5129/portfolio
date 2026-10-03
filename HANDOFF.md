@@ -8,7 +8,9 @@ Context for picking up this project in a new session. Attach this file **and** `
 
 A scroll-driven, cinematic personal portfolio for **Divyam Gupta** (economics senior at San José State, tech risk intern at EY, camper). It's for anyone: friends, collaborators, recruiters. The look is inspired by igloo.inc: one continuous 3D scene behind the page, with the camera moving as you scroll.
 
-**Core idea:** one continuous low-poly mountain landscape behind the page. **As you scroll, the time of day moves from dawn to night**, and both the 3D sky and the page's accent colours follow it. The site opens on a self-drawing **Golden Gate Bridge** line drawing and ends at night by a glowing tent and campfire.
+**Core idea:** one continuous low-poly mountain landscape behind the page. **As you scroll, the time of day moves from dawn to night**, and both the 3D sky and the page's accent colours follow it. The site opens on a self-drawing **Golden Gate Bridge** line drawing and ends under a night sky with stars and aurora.
+
+**Alternative version:** the earlier, more camping-themed site (tent, campfire, trail with glowing posts, hiker on an elevation profile) is preserved on the `camping-version` branch.
 
 **Copy tone (owner's call):** professional and plain. Camping belongs only in the Trail Map, the Outdoors gallery and the Interests tags; don't use trail/summit/terrain metaphors in the professional sections.
 
@@ -27,7 +29,7 @@ Each section has a palette (time of day) and a camera pose. **These three lists 
 | 1 | `hero` | The Bay | Dawn 06:12 | Golden Gate line drawing draws itself; name and buttons fade up; "Open to June 2027 roles" pill; View work / Resume buttons |
 | 2 | `about` | About | Sunrise | Statement with three phrases in colour; portrait (generated landscape + "DG" until a photo is added); spec row; 3 stat cards (roles, class of, available from) |
 | 3 | `now` | Now | Morning | 4 glass cards: Studying / Working (EY) / Looking for (2027 roles) / Community (IIA) |
-| 4 | `experience` | Experience | Midday | **"Experience."** Pinned. One chapter per role plus an elevation profile with a climbing hiker (see §5) |
+| 4 | `experience` | Experience | Midday | **"Experience."** Pinned. One chapter per role plus a straight progress timeline (see §5) |
 | 5 | `toolkit` | IT Controls | Afternoon | "What I work on." 4 ITGC domain cards (Access, Change, Operations, Development) that expand to "Typical evidence"; a 5-step "How a control gets tested" line that fills with scroll |
 | 6 | `trail-map` | Trail Map | Golden hour | Pinned (240% scroll) topo plate of the Sierra Nevada, Tahoe to Yosemite: 200 m contours, lakes, rivers, highways, Yosemite NP boundary, peaks, towns. Route draws between the 3 real trips; trip cards show area, elevation, coordinates, date, nights |
 | 7 | `gallery` | Gallery | Sunset | "Outdoors": horizontal-scroll photo strip of the camping trips, with a lightbox |
@@ -51,7 +53,7 @@ components/
   ui.tsx              SectionLabel, Heading, Arrow, PhotoPlaceholder, Brackets, Crosshairs
   sections/           Hero, About, Now, Experience, Toolkit, TrailMap, Gallery, Skills, Contact
   Scene/
-    world.ts          terrain height function, lake, tent, fire, trail curve, tree placement, CAMERA POSES
+    world.ts          terrain height function, lake, hilltop (knoll), Experience camera path, tree placement, CAMERA POSES
     atmosphere.ts     per-frame lighting state from the palette (linear colours) + shared GLSL noise
     CameraRig.tsx     camera path through the poses, trail ride during Experience, fog, the 2 lights
     SceneCanvas.tsx   <Canvas> composition
@@ -59,7 +61,7 @@ components/
     SceneRoot.tsx     2D layer first; on desktop, fetches 3D after the hero and cross-fades to it
     Sky.tsx           sky dome: gradient, sun, clouds, moon, stars, aurora
     Terrain.tsx       shaded terrain (height/slope colours + contour lines + firelight)
-    Water.tsx         alpine lake;  Forest.tsx  instanced pines;  Tent.tsx  tent + campfire + trail + posts
+    Water.tsx         alpine lake;  Forest.tsx  instanced pines
     Particles.tsx     pollen/fireflies
     ContourFallback.tsx  2D layered-mountain fallback (follows the same CSS colour vars)
 data/
@@ -92,7 +94,7 @@ public/               resume.pdf (placeholder), og.jpg, audio/ambient.mp3, photo
 - **Motion is deliberately restrained** (owner's call: keep it professional). Entrances use `reveal()` from `lib/anim.ts` only: a short fade-up, once. No custom cursor, tilt, scramble, per-letter splits, cursor-reactive effects, count-ups or marquees. The Golden Gate draw is the one showpiece; keep it.
 - **Shaders compute in linear colour space** and end with `#include <colorspace_fragment>`, so they look the same with and without the bloom pass. Set colours with `color.setRGB(r,g,b, THREE.SRGBColorSpace)`.
 - **Reduced motion:** Lenis is off, nothing is pinned, everything is drawn or shown immediately, and the 3D scene renders on demand. `scrollStore.reducedMotion` is read when the module loads, on purpose: sections set up before any provider effect runs.
-- **Hero bridge:** `GoldenGate.tsx` is plain SVG. The draw order is set in `Hero.tsx` (the `draw` timeline, which plays on `onIntro`). The hero camera looks up into the dawn sky so the tent isn't in the opening shot.
+- **Hero bridge:** `GoldenGate.tsx` is plain SVG. The draw order is set in `Hero.tsx` (the `draw` timeline, which plays on `onIntro`). The hero camera looks up into the dawn sky.
 
 ---
 
@@ -101,12 +103,12 @@ public/               resume.pdf (placeholder), og.jpg, audio/ambient.mp3, photo
 The file is `components/sections/Experience.tsx`, and its data is `data/experience.ts`.
 
 - **Desktop (≥900px, motion on):** the section pins for `(N-1)×85%` of scroll. Only one chapter shows at a time: a big gradient number, the org, the title, the period, and a glass card with the summary, bullets and skill tags.
-- **Elevation profile (bottom of the section):** a colourful profile with a white hiker dot that climbs as you scroll. The profile line is drawn through a DrawSVG mask path. The visible line uses `vector-effect: non-scaling-stroke`, which DrawSVG can't measure directly.
-- **Chapter changes:** the chapter switches when the hiker passes the halfway point between waypoints, with a direction-aware transition.
+- **Timeline (bottom of the section):** a straight line with evenly spaced step markers; a gradient fill grows with scroll (`scaleX`).
+- **Chapter changes:** the chapter switches at the halfway point between markers, with a direction-aware transition.
 - **Waypoints:** each waypoint is a button that jumps to its chapter.
 - **Last waypoint:** "What's next", showing two paths (Tech controls / risk advisory and Finance & economics analytics) and "Graduating May 2027. Available from June 2027."
 - **Phones and reduced motion:** the chapters stack vertically with reveal animations. `data-mode` on the section is `stacked` or `pinned`.
-- **3D link:** `scrollStore.experience` drives the camera's ride along the 3D trail and lights up the trail posts. There's one post per waypoint (`POST_T` in `world.ts`), so if you add a chapter, add a post value too.
+- **3D link:** `scrollStore.experience` drives the camera along an invisible path over the terrain (`trailCurve()` in `world.ts`).
 
 Current chapters:
 1. Economics, SJSU (2023–2027, TODO: confirm start year)
